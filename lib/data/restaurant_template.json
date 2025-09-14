@@ -1,0 +1,287 @@
+[
+  {
+        "restaurantName": "麵匡匡拉麵食堂 新竹清大店",
+        "genreTags": [
+            "japanese"
+        ],
+        "summary": "提供正宗日式拉麵，湯頭濃郁，麵條Q彈，配料新鮮豐富，深受清大學生喜愛。",
+        "businessHour": {
+            "Monday": "11:00-15:00, 17:00-21:00",
+            "Tuesday": "11:00-15:00, 17:00-21:00",
+            "Wednesday": "11:00-15:00, 17:00-21:00",
+            "Thursday": "11:00-15:00, 17:00-21:00",
+            "Friday": "11:00-15:00, 17:00-21:00",
+            "Saturday": "11:00-15:00, 17:00-21:00",
+            "Sunday": "11:00-15:00, 17:00-21:00"
+        },
+        "address": "300新竹市東區光復路二段320號",
+        "phoneNumber": "03-5751626",
+        "restaurantReviewIDs": [],
+        "latitude": 24.797679713034906,
+        "longitude": 120.99871475777769,
+        "googleMapURL": "https://www.google.com/maps/place/%E9%BA%B5%E5%8C%A1%E5%8C%A1%E6%8B%89%E9%BA%B5%E9%A3%9F%E5%A0%82+%E6%96%B0%E7%AB%B9%E6%B8%85%E5%A4%A7%E5%BA%97/@24.7958145,120.9959682,17z/data=!3m1!4b1!4m6!3m5!1s0x346837e034f289a1:0x395ff02a6f98849f!8m2!3d24.7958097!4d120.9985431!16s%2Fg%2F11l38sxfv1?entry=ttu&g_ep=EgoyMDI1MDYwNC4wIKXMDSoASAFQAw%3D%3D",
+        "veganTag": "nonVegetarian",
+        "menu": [
+            {
+                "dishName": "烏溜溜 豆香醬油拉麵",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "好口碑經典拉麵",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 145
+            },
+			{
+                "dishName": "都是鷄 嫩胸鷄白湯拉麵",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "好口碑經典拉麵",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 170
+            },
+			{
+                "dishName": "厚醇醇 NO.1招牌豚骨拉麵",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "好口碑經典拉麵",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 180
+            },
+			{
+                "dishName": "紅火火 超過癮麻辣拉麵",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "好口碑經典拉麵",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 185
+            },
+			{
+                "dishName": "炙燒培根牛 香蒜蛤蜊拉麵",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "好口碑經典拉麵",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 250
+            },
+			{
+                "dishName": "濃濃香 牛奶起司拉麵",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "好口碑經典拉麵",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 165
+            },
+			{
+                "dishName": "暖呼呼 叉燒鷄白湯拉麵",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "好口碑經典拉麵",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 170
+            },
+			{
+                "dishName": "金帥帥 鹹蛋黃金沙拉麵",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "好口碑經典拉麵",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 175
+            },
+			{
+                "dishName": "辣麼香 川味炙燒牛拉麵",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "好口碑經典拉麵",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 195
+            },
+			{
+                "dishName": "溏心蛋",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "美味小菜",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 25
+            },
+            {
+                "dishName": "胡麻龍鬚涼菜",
+                "dishReviewIDs": [],
+                "veganTag": "lacto",
+                "halalTag": "no",
+                "dishGenre": "美味小菜",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 55
+            },
+            {
+                "dishName": "炙燒櫛瓜玉米筍",
+                "dishReviewIDs": [],
+                "veganTag": "lacto",
+                "halalTag": "no",
+                "dishGenre": "美味小菜",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 55
+            },
+            {
+                "dishName": "胡麻嫩豆腐",
+                "dishReviewIDs": [],
+                "veganTag": "lacto",
+                "halalTag": "no",
+                "dishGenre": "美味小菜",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 40
+            },
+            {
+                "dishName": "金翠腐乳泡菜",
+                "dishReviewIDs": [],
+                "veganTag": "lacto",
+                "halalTag": "no",
+                "dishGenre": "美味小菜",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 40
+            },
+			{
+                "dishName": "豬叉燒5片",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "來吃肉肉",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 95
+            },
+            {
+                "dishName": "鷄叉燒8片",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "來吃肉肉",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 60
+            },
+            {
+                "dishName": "豬鷄拼盤",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "來吃肉肉",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 80
+            },
+            {
+                "dishName": "招牌唐揚鷄",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "來吃肉肉",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 95
+            },
+			{
+                "dishName": "白飯",
+                "dishReviewIDs": [],
+                "veganTag": "vegan",
+                "halalTag": "no",
+                "dishGenre": "加麵加飯",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 15
+            },
+            {
+                "dishName": "麵量加倍",
+                "dishReviewIDs": [],
+                "veganTag": "vegan",
+                "halalTag": "no",
+                "dishGenre": "加麵加飯",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 25
+            },
+            {
+                "dishName": "寶寶拉麵",
+                "dishReviewIDs": [],
+                "veganTag": "vegan",
+                "halalTag": "no",
+                "dishGenre": "加麵加飯",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 85
+            },
+            {
+                "dishName": "明太子叉燒飯",
+                "dishReviewIDs": [],
+                "veganTag": "nonVegetarian",
+                "halalTag": "no",
+                "dishGenre": "加麵加飯",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 65
+            },
+			{
+                "dishName": "櫻花煎茶",
+                "dishReviewIDs": [],
+                "veganTag": "vegan",
+                "halalTag": "no",
+                "dishGenre": "冷泡茶",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 40
+            },
+            {
+                "dishName": "四季春茶",
+                "dishReviewIDs": [],
+                "veganTag": "vegan",
+                "halalTag": "no",
+                "dishGenre": "冷泡茶",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 40
+            },
+            {
+                "dishName": "繽紛野莓果茶",
+                "dishReviewIDs": [],
+                "veganTag": "vegan",
+                "halalTag": "no",
+                "dishGenre": "冷泡茶",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 40
+            },
+            {
+                "dishName": "陳阿滿桂花紅茶",
+                "dishReviewIDs": [],
+                "veganTag": "vegan",
+                "halalTag": "no",
+                "dishGenre": "冷泡茶",
+                "summary": "",
+                "bestReviewSummary": "",
+                "dishPrice": 40
+            }
+        ]
+    }
+]

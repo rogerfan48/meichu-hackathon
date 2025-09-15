@@ -121,13 +121,13 @@ final routerConfig = GoRouter(
 );
 
 class NavigationService {
-  late final GoRouter _router;
+  // late final GoRouter _router;
 
-  NavigationService() {
-    _router = routerConfig;
-  }
+  // NavigationService() {
+  //   _router = routerConfig;
+  // }
 
-  String _currentPath(BuildContext context) {
-    return GoRouterState.of(context).uri.path;
-  }
+  // String _currentPath(BuildContext context) {
+  //   return GoRouterState.of(context).uri.path;
+  // }
 }

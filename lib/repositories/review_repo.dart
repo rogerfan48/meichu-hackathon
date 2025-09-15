@@ -16,7 +16,7 @@ class ReviewRepository {
       return Map.fromEntries(
         snapshot.docs.map(
           (doc) =>
-              MapEntry(doc.id, ReviewModel.fromMap(doc.id, doc.data() as Map<String, dynamic>)),
+              MapEntry(doc.id, ReviewModel.fromMap(doc.id, doc.data())),// as Map<String, dynamic>)),
         ),
       );
     });

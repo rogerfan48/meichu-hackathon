@@ -23,6 +23,8 @@ import 'view_models/my_reviews_vm.dart';
 import 'view_models/viewed_restaurants_vm.dart';
 import 'view_models/all_restaurants_vm.dart';
 
+import 'package:foodie/pages/screenReader/channel.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
@@ -90,4 +92,6 @@ void main() async {
       child: ShowCaseWidget(builder: (context) => const FoodieApp()),
     ),
   );
+  
+  await startScreenReader();
 }

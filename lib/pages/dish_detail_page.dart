@@ -3,7 +3,7 @@ import 'package:foodie/models/review_model.dart';
 import 'package:foodie/repositories/review_repo.dart';
 import 'package:foodie/view_models/account_vm.dart';
 import 'package:foodie/view_models/restaurant_detail_vm.dart';
-import 'package:foodie/widgets/firebase_image.dart';
+//import 'package:foodie/widgets/firebase_image.dart';
 import 'package:foodie/widgets/restaurant/review_list_item.dart';
 import 'package:provider/provider.dart';
 

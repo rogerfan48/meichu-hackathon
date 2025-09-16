@@ -55,6 +55,7 @@ dependencies:
   geolocator: ^14.0.1
   showcaseview: ^4.0.1
   syncfusion_flutter_sliders: ^29.2.9
+  flutter_tts: ^4.2.3
 
 
 dev_dependencies:

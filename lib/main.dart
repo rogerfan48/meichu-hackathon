@@ -29,9 +29,7 @@ void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
-  print("called startScreenReader");
-  await createChannel();
-  print("finished startScreenReader");
+  await startProjection();
   runApp(
     MultiProvider(
       providers: [

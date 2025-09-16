@@ -1,19 +1,28 @@
 package com.example.foodie
 
-import android.accessibilityservice.AccessibilityService
-import android.view.accessibility.AccessibilityEvent
-import android.view.accessibility.AccessibilityNodeInfo
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
 import io.flutter.plugin.common.MethodChannel
+import android.accessibilityservice.AccessibilityService
+import android.view.accessibility.AccessibilityEvent
+import android.view.accessibility.AccessibilityNodeInfo
+import android.content.Intent
 import android.os.Bundle
 import android.os.Build
 import android.util.Log
 
 private const val EXTRA_DRAWABLE_RESOURCES = "android.view.accessibility.extra.DRAWABLE_RESOURCES"
 
-class ScreenReader: AccessibilityService() {
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+class ScreenReader: AccessibilityService() { // 無障礙服務開啟後的廣播 用來告訴 MainActivity 無障礙服務已啟動要開啟app
+    override fun onServiceConnected() {
+        super.onServiceConnected()
+        Log.d("ScreenReaderService", "Accessibility Service Connected")
+        val intent = Intent("com.example.foodie.ACCESSIBILITY_ENABLED")
+        intent.setPackage(packageName)
+        sendBroadcast(intent)
+    }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) { // 接收無障礙模式事件
         val rootNode = event?.source
         if (rootNode != null) {
             organizeUITree(rootNode)
@@ -25,7 +34,7 @@ class ScreenReader: AccessibilityService() {
         Log.d("ScreenReaderService", "Service Interrupted")
     }
 
-    private fun printNodeTree(node: AccessibilityNodeInfo?, indent: String = "") {
+    private fun printNodeTree(node: AccessibilityNodeInfo?, indent: String = "") { // 印出整棵 UI 樹，方便 debug
         if (node == null) return
         Log.d("ScreenReaderService", "$indent- ${node.className} | text: ${node.text} | contentDesc: ${node.contentDescription}")
         for (i in 0 until node.childCount) {
@@ -33,7 +42,7 @@ class ScreenReader: AccessibilityService() {
         }
     }
 
-    data class NodeSet(
+    data class NodeSet( // 用來分類 UI 樹的資料結構
         val texts: MutableList<AccessibilityNodeInfo> = mutableListOf(),
         val images: MutableList<AccessibilityNodeInfo> = mutableListOf(),
         val tools: MutableList<AccessibilityNodeInfo> = mutableListOf()

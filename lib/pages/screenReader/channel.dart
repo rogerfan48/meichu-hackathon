@@ -4,7 +4,7 @@ import 'dart:developer' as developer;
 const platform = MethodChannel('com.screen_reader/projection');
 
 
-Future<void> createChannel() async {
+Future<void> startProjection() async {
   try {
     await platform.invokeMethod('startProjection');
   } on PlatformException catch (e) {

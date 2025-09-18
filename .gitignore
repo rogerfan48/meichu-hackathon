@@ -162,3 +162,6 @@ app.*.symbols
 serviceAccountKey.json
 .firebaserc
 .env
+
+// add google api key here
+lib/api_key.dart

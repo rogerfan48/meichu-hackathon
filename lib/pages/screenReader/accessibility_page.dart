@@ -30,6 +30,8 @@ class _AccessibilityPageState extends State<AccessibilityPage> {
               });
               if (_isFeatureOn) {
                   await startProjection();
+              } else {
+                  await stopProjection();
               }
             },
             secondary: const Icon(Icons.accessibility_new),

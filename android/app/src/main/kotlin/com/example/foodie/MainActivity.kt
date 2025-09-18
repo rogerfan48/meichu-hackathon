@@ -26,15 +26,14 @@ class MainActivity : FlutterActivity() {
                     startScreenCaptureIntent()
                 } else {
                     Log.d("MainActivity", "Accessibility Service is already enabled.")
-                    val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
-                    if (launchIntent != null) {
-                        launchIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                        startActivity(launchIntent)
-                    }
+                    runTheApp()
                 }
                 result.success(true)
             } else if (call.method == "stopProjection") {
-
+                if (isAccessibilityServiceEnabled()) {
+                    stopScreenCaptureIntent()
+                }
+                result.success(true)
             } else {
                 result.notImplemented()
             }
@@ -66,9 +65,7 @@ class MainActivity : FlutterActivity() {
         val filter = IntentFilter("com.example.foodie.ACCESSIBILITY_ENABLED")
         registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
-                val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
-                launchIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
-                startActivity(launchIntent)
+                runTheApp()
             }
         }, filter, RECEIVER_EXPORTED)
     }
@@ -78,5 +75,18 @@ class MainActivity : FlutterActivity() {
         Log.d("MainActivity", "Screen capture intent started")
         val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
         startActivity(intent)
+    }
+
+    private fun stopScreenCaptureIntent() {
+        // Implement your screen capture logic here
+        Log.d("MainActivity", "Screen capture intent stopped")
+        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
+        startActivity(intent)
+    }
+
+    private fun runTheApp() {
+        val launchIntent = packageManager.getLaunchIntentForPackage(packageName)
+        launchIntent?.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_ACTIVITY_CLEAR_TOP)
+        startActivity(launchIntent)
     }
 }

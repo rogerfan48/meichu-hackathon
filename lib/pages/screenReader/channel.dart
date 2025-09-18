@@ -11,3 +11,11 @@ Future<void> startProjection() async {
     developer.log("Failed to start screen reader: '${e.message}'.", name: 'ScreenReader');
   }
 }
+
+Future<void> stopProjection() async {
+  try {
+    await platform.invokeMethod('stopProjection');
+  } on PlatformException catch (e) {
+    developer.log("Failed to stop screen reader: '${e.message}'.", name: 'ScreenReader');
+  }
+}

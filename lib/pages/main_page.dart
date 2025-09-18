@@ -10,6 +10,7 @@ class MainPage extends StatelessWidget {
     '/map',
     '/ai',
     '/account',
+    '/accessibility',
   ];
 
   @override

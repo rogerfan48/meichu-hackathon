@@ -19,6 +19,7 @@ import 'package:foodie/pages/restaurant_page.dart';
 import 'package:foodie/pages/browsing_history_page.dart';
 import 'package:foodie/pages/my_reviews_page.dart';
 import 'package:foodie/pages/dish_detail_page.dart';
+import 'package:foodie/pages/screenReader/accessibility_page.dart';
 
 final routerConfig = GoRouter(
   initialLocation: '/loading',
@@ -91,7 +92,7 @@ final routerConfig = GoRouter(
             ),
           ],
         ),
-        GoRoute(path: '/ai', pageBuilder: (context, state) => NoTransitionPage(child: AiPage())),
+        GoRoute(path: '/ai', pageBuilder: (context, state) => NoTransitionPage(child: AccessibilityPage())),
         GoRoute(
           path: '/account',
           pageBuilder: (context, state) => NoTransitionPage(child: AccountPage()),
@@ -106,6 +107,9 @@ final routerConfig = GoRouter(
             ),
           ],
         ),
+        // GoRoute(
+        //   path: '/accessibility', pageBuilder: (context, state) => NoTransitionPage(child: AccessibilityPage())
+        // ),
       ],
     ),
   ],

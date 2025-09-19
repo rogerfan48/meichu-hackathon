@@ -12,8 +12,8 @@ class LoadingPage extends StatelessWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             Image.asset('assets/imgs/brand_logo.png', width: 150),
-            Text("Foodie", style: Theme.of(context).textTheme.displayLarge),
-            Text("Designed by Team 11", style: Theme.of(context).textTheme.bodyMedium),
+            Text("Meichu", style: Theme.of(context).textTheme.displayLarge),
+            Text("Designed by XXXXX", style: Theme.of(context).textTheme.bodyMedium),
             const SizedBox(height: 24),
             SizedBox(
               width: 200,
@@ -24,7 +24,7 @@ class LoadingPage extends StatelessWidget {
                   return LinearProgressIndicator(value: value);
                 },
                 onEnd: () {
-                  context.go('/map');
+                  context.go('/home');
                 },
               ),
             ),

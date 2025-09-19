@@ -1,20 +1,39 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:foodie/pages/loading_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:foodie/pages/main_page.dart';
 import 'package:foodie/pages/home_page.dart';
 import 'package:foodie/pages/flashcard/flashcard_page.dart';
 import 'package:foodie/pages/screenReader/accessibility_page.dart';
+import 'package:foodie/pages/history_page.dart';
 
 final routerConfig = GoRouter(
-  initialLocation: '/home',
+  initialLocation: '/loading',
   routes: [
+    GoRoute(
+      path: '/loading',
+      pageBuilder: (context, state) => NoTransitionPage(child: const LoadingPage()),
+    ),
     ShellRoute(
       builder: (context, state, child) => MainPage(child: child), // 傳入 tab page
       routes: [
-        GoRoute(path: '/home', pageBuilder: (context, state) => const NoTransitionPage(child: HomePage())),
-        GoRoute(path: '/flashcard', pageBuilder: (context, state) => const NoTransitionPage(child: FlashcardPage())),
-        GoRoute(path: '/accessibility', pageBuilder: (context, state) => NoTransitionPage(child: AccessibilityPage())),
+        GoRoute(
+          path: '/home',
+          pageBuilder: (context, state) => const NoTransitionPage(child: HomePage()),
+        ),
+        GoRoute(
+          path: '/flashcard',
+          pageBuilder: (context, state) => const NoTransitionPage(child: FlashcardPage()),
+        ),
+        GoRoute(
+          path: '/history',
+          pageBuilder: (context, state) => const NoTransitionPage(child: HistoryPage()),
+        ),
+        GoRoute(
+          path: '/accessibility',
+          pageBuilder: (context, state) => NoTransitionPage(child: AccessibilityPage()),
+        ),
       ],
     ),
   ],

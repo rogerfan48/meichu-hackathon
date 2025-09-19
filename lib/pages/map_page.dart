@@ -261,10 +261,10 @@ class _MapPageState extends State<MapPage> {
 
   @override
   Widget build(BuildContext context) {
-    final LatLng initialPosition = context.read<MapPositionService>().position;
+    //final LatLng initialPosition = context.read<MapPositionService>().position;
     final allRestaurantViewModel = context.watch<AllRestaurantViewModel>();
     final restaurants = allRestaurantViewModel.restaurants;
-    final restaurantMarkers = _createMarkers(restaurants);
+    //final restaurantMarkers = _createMarkers(restaurants);
 
     return Scaffold(
       body: Stack(

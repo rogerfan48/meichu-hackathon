@@ -33,7 +33,7 @@ class AccountPage extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final colorScheme = theme.colorScheme;
-    final textTheme = theme.textTheme;
+    //final textTheme = theme.textTheme;
     final themeService = context.watch<ThemeService>();
     final accountViewModel = context.watch<AccountViewModel>(); // Watch the ViewModel
 

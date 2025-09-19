@@ -3,7 +3,7 @@ import 'package:foodie/view_models/restaurant_detail_vm.dart';
 import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:foodie/widgets/firebase_image.dart';
-import 'package:foodie/models/dish_model.dart';
+//import 'package:foodie/models/dish_model.dart';
 
 class RestaurantMenuPage extends StatefulWidget {
   const RestaurantMenuPage({super.key});

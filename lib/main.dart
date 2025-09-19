@@ -2,13 +2,13 @@
 
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:firebase_core/firebase_core.dart';
+//import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:showcaseview/showcaseview.dart';
 
 import 'app.dart';
-import 'firebase_options.dart';
+//import 'firebase_options.dart';
 import 'repositories/restaurant_repo.dart';
 import 'repositories/review_repo.dart';
 import 'repositories/user_repo.dart';
@@ -23,10 +23,13 @@ import 'view_models/my_reviews_vm.dart';
 import 'view_models/viewed_restaurants_vm.dart';
 import 'view_models/all_restaurants_vm.dart';
 
+// import 'package:foodie/pages/screenReader/channel.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  // await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
+  // await startProjection();
   runApp(
     MultiProvider(
       providers: [

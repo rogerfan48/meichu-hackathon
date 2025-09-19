@@ -29,7 +29,7 @@ final routerConfig = GoRouter(
       routes: [
         GoRoute(path: '/home', pageBuilder: (context, state) => const NoTransitionPage(child: HomePage())),
         GoRoute(path: '/flashcard', pageBuilder: (context, state) => const NoTransitionPage(child: FlashcardPage())),
-        GoRoute(path: '/ai', pageBuilder: (context, state) => NoTransitionPage(child: AccessibilityPage()),
+        GoRoute(path: '/accessibility', pageBuilder: (context, state) => NoTransitionPage(child: AccessibilityPage())),
       ],
     ),
   ],

@@ -1,10 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
 import 'package:foodie/enums/genre_tag.dart';
-import 'package:foodie/services/map_position.dart';
-import 'package:foodie/view_models/all_restaurants_vm.dart';
-import 'package:provider/provider.dart';
 
 class HistoryListTile extends StatelessWidget {
   final String restaurantName;
@@ -50,17 +45,17 @@ class HistoryListTile extends StatelessWidget {
       onDismissed: (_) => onDelete(),
       child: ListTile(
         onTap: () {
-          if (restaurantId.isEmpty) return;
-          final mapPositionService = context.read<MapPositionService>();
-          final allRestaurantVM = context.read<AllRestaurantViewModel>();
-          final theRestaurant = allRestaurantVM.restaurants.firstWhere(
-            (r) => r.restaurantId == restaurantId,
-          );
-          mapPositionService.updatePosition(
-            LatLng(theRestaurant.latitude, theRestaurant.longitude),
-          );
-          mapPositionService.updateId(restaurantId);
-          context.go('/map');
+          // if (restaurantId.isEmpty) return;
+          // final mapPositionService = context.read<MapPositionService>();
+          // //final allRestaurantVM = context.read<AllRestaurantViewModel>();
+          // // final theRestaurant = allRestaurantVM.restaurants.firstWhere(
+          // //   (r) => r.restaurantId == restaurantId,
+          // // );
+          // // mapPositionService.updatePosition(
+          // //   LatLng(theRestaurant.latitude, theRestaurant.longitude),
+          // // );
+          // mapPositionService.updateId(restaurantId);
+          // context.go('/map');
         },
         title: Row(
           children: [

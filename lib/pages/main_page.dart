@@ -7,9 +7,8 @@ class MainPage extends StatelessWidget {
   const MainPage({super.key, required this.child});
 
   static final _tabs = [
-    '/map',
-    '/ai',
-    '/account',
+    '/home',
+    '/flashcard',
     '/accessibility',
   ];
 

@@ -19,3 +19,12 @@ Future<void> stopProjection() async {
     developer.log("Failed to stop screen reader: '${e.message}'.", name: 'ScreenReader');
   }
 }
+
+Future<bool> isAccessibilityServiceEnabled() async {
+  try {
+    return await platform.invokeMethod('isAccessibilityServiceEnabled') ?? false;
+  } on PlatformException catch (e) {
+    developer.log("Failed to check accessibility service: '${e.message}'.", name: 'ScreenReader');
+    return false;
+  }
+}

@@ -34,6 +34,8 @@ class MainActivity : FlutterActivity() {
                     stopScreenCaptureIntent()
                 }
                 result.success(true)
+            } else if (call.method == "isAccessibilityServiceEnabled") {
+                result.success(isAccessibilityServiceEnabled())
             } else {
                 result.notImplemented()
             }

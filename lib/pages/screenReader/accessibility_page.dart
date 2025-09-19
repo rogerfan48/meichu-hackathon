@@ -8,8 +8,37 @@ class AccessibilityPage extends StatefulWidget {
   State<AccessibilityPage> createState() => _AccessibilityPageState();
 }
 
-class _AccessibilityPageState extends State<AccessibilityPage> {
+class _AccessibilityPageState extends State<AccessibilityPage> with WidgetsBindingObserver {
   bool _isFeatureOn = false;
+
+  @override
+  void initState() {
+    super.initState();
+    WidgetsBinding.instance.addObserver(this);
+    _checkServiceStatus();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
+  }
+
+  @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    if (state == AppLifecycleState.resumed) {
+      _checkServiceStatus();
+    }
+  }
+
+  Future<void> _checkServiceStatus() async {
+    final bool isEnabled = await isAccessibilityServiceEnabled();
+    if (mounted) {
+      setState(() {
+        _isFeatureOn = isEnabled;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {

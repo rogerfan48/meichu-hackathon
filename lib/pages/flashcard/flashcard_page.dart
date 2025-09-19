@@ -5,7 +5,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_tts/flutter_tts.dart';
 import 'package:google_generative_ai/google_generative_ai.dart';
 
-import '../api_key.dart';
+import '../../api_key.dart';
 
 class FlashcardPage extends StatefulWidget {
   const FlashcardPage({super.key});

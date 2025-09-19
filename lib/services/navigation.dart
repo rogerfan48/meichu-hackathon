@@ -1,14 +1,9 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:foodie/repositories/restaurant_repo.dart';
-import 'package:foodie/repositories/review_repo.dart';
-import 'package:foodie/repositories/user_repo.dart';
-import 'package:foodie/services/storage_service.dart';
 import 'package:foodie/pages/main_page.dart';
 import 'package:foodie/pages/home_page.dart';
-import 'package:foodie/pages/flashcard_page.dart';
+import 'package:foodie/pages/flashcard/flashcard_page.dart';
 import 'package:foodie/pages/screenReader/accessibility_page.dart';
 
 final routerConfig = GoRouter(

@@ -1,0 +1,71 @@
+{
+  "apps": {
+    "hackathon": {
+      "users": {
+        "user_abc123": {
+          "userName": "Alice",
+          "uid": "uid_abc123",
+          "defaultSpeechRate": 1.0,
+          "cards": {
+            "card1": {
+              "sessionID": "session_001",
+              "tags": ["AI", "Hackathon", "Speech"],
+              "imgURL": "https://example.com/images/card1.png",
+              "text": "This is a card about using AI for speech generation."
+            },
+            "card2": {
+              "sessionID": "session_002",
+              "tags": ["Cloud", "Firestore"],
+              "imgURL": "https://example.com/images/card2.png",
+              "text": "This card explains how to structure a Firestore database."
+            }
+          },
+          "sessions": {
+            "session_001": {
+              "sessionName": "AI Speech Demo",
+              "fileResources": {
+                "file1": {
+                  "fileURL": "https://example.com/resources/demo1.pdf",
+                  "fileSummary": "A PDF describing the AI speech demo process."
+                },
+                "file2": {
+                  "fileURL": "https://example.com/resources/demo1.pptx",
+                  "fileSummary": "Presentation slides for AI speech demo."
+                }
+              },
+              "summary": "This session demonstrates real-time speech generation using AI.",
+              "imgExplanations": {
+                "imgExp1": {
+                  "imgURL": "https://example.com/images/session1_ex1.png",
+                  "explanation": "Diagram showing the speech generation pipeline."
+                },
+                "imgExp2": {
+                  "imgURL": "https://example.com/images/session1_ex2.png",
+                  "explanation": "Screenshot of the live demo interface."
+                }
+              },
+              "cardIDs": ["card1"]
+            },
+            "session_002": {
+              "sessionName": "Firestore Tutorial",
+              "fileResources": {
+                "file1": {
+                  "fileURL": "https://example.com/resources/firestore_guide.pdf",
+                  "fileSummary": "Step-by-step guide to Firestore database setup."
+                }
+              },
+              "summary": "This session teaches participants how to structure data in Firestore.",
+              "imgExplanations": {
+                "imgExp1": {
+                  "imgURL": "https://example.com/images/session2_ex1.png",
+                  "explanation": "Visual representation of Firestore collections and documents."
+                }
+              },
+              "cardIDs": ["card2"]
+            }
+          }
+        }
+      }
+    }
+  }
+}

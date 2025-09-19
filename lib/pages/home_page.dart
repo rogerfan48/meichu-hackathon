@@ -11,7 +11,7 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool _isTalking = false;
   final String _modelUrl =
-      'https://models.readyplayer.me/68c95fc9ef9d88a32d44ca92.glb?lod=1';
+      'assets/3d_model/68c95fc9ef9d88a32d44ca92.glb';
 
   @override
   void initState() {

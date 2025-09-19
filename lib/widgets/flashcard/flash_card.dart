@@ -41,44 +41,12 @@ class _FlashCardState extends State<FlashCard> {
     super.dispose();
   }
 
-  Future<Uint8List?> _generateImage(String text) async {
-    final prompt = TextPart(
-        "Generate a photorealistic image of ${widget.text}, with a white background.");
-    /* final response = */ await _model.generateContent([
-      Content.multi([prompt])
-    ]);
-    // Assuming the model returns image bytes in some way.
-    // This part is tricky because the current gemini-pro-vision model is multimodal for *input*, not for generating images as output.
-    // Let's assume there's a hypothetical image generation model or function.
-    // For now, I'll return a placeholder. The user might need to use a different model like 'gemini-pro' and get an image URL, or use a different image generation API.
-    // The google_generative_ai package does not directly support image generation output yet.
-    // Let's change the model to a text model and ask for an image URL.
-    // final textModel = GenerativeModel(model: 'gemini-pro', apiKey: apiKey);
-    // final textPrompt =
-    //     "Give me a URL of a realistic-looking image of ${widget.text} with a white background.";
-    // final textResponse =
-    //     await textModel.generateContent([Content.text(textPrompt)]);
-
-    // This is a placeholder for how you might get image data.
-    // You'd typically use an HTTP client to download the image from a URL.
-    // Since we don't have a real image generation model that outputs bytes,
-    // we can't fully implement this.
-    // I will simulate a network image load.
-    // if (textResponse.text != null) {
-    //   // In a real app, you would use http package to get the image bytes from URL
-    //   // For this example, let's just return null and show a placeholder.
-    //   print(textResponse.text); // You can see the URL in the console.
-    // }
-
-    return null; // Returning null to show placeholder.
-  }
-
   @override
   Widget build(BuildContext context) {
     return Center(
       child: SizedBox(
-        width: 300,
-        height: 450,
+        width: 100,
+        height: 200,
         child: FlipCard(
           front: Card(
             elevation: 4,
@@ -110,16 +78,11 @@ class _FlashCardState extends State<FlashCard> {
             ),
           ),
           onFlip: () {
-            if (_imageFuture == null) {
-              final lang = _isChinese(widget.text) ? 'zh-TW' : 'en-US';
-              flutterTts.setLanguage(lang);
-              setState(() {
-                _imageFuture = _generateImage(widget.text);
-              });
-            }
+            final lang = _isChinese(widget.text) ? 'zh-TW' : 'en-US';
+            flutterTts.setLanguage(lang);
           },
           onFlipDone: (isFront) {
-            if (isFront) {
+            if (!isFront) {
               flutterTts.speak(widget.text);
             }
           },

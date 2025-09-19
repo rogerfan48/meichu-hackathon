@@ -62,7 +62,6 @@ dependencies:
   google_generative_ai: ^0.4.3
   flip_card: ^0.7.0
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -83,6 +82,7 @@ flutter:
     - assets/imgs/
     - assets/map_styles/
     - assets/imgs/brand_logo.png
+    - assets/3d_model/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

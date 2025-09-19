@@ -18,12 +18,13 @@ class CharacterModelViewer extends StatelessWidget {
       alt: 'A 3D model of a character',
       poster: 'assets/imgs/brand_logo.png',
       ar: false,
+      autoPlay: true,
       autoRotate: false,
       cameraControls: false,
-      cameraTarget: '0m 0.55m 0m',
-      cameraOrbit: '0deg 90deg 0.8m',
+      cameraTarget: '0m 0.55m -0.5m',
+      cameraOrbit: '0deg 90deg 0.3m',
       disableZoom: true,
-      animationName: isTalking ? 'standing_talking' : 'idle',
+      animationName: isTalking ? 'F_Talking_Variations_001' : 'idle',
       shadowIntensity: 0,
     );
   }

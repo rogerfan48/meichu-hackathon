@@ -62,12 +62,20 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) { // 接收無障礙服務啟動的廣播 用來開啟 app
         super.onCreate(savedInstanceState)
-        val filter = IntentFilter("com.example.foodie.ACCESSIBILITY_ENABLED")
+        val enabledFilter = IntentFilter("com.example.foodie.ACCESSIBILITY_ENABLED")
         registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 runTheApp()
             }
-        }, filter, RECEIVER_EXPORTED)
+        }, enabledFilter, RECEIVER_EXPORTED)
+
+        val disabledFilter = IntentFilter("com.example.foodie.ACCESSIBILITY_DISABLED")
+        registerReceiver(object : BroadcastReceiver() {
+            override fun onReceive(context: Context?, intent: Intent?) {
+                Log.d("MainActivity", "Accessibility Service Disabled. Finishing activity.")
+                runTheApp()
+            }
+        }, disabledFilter, RECEIVER_EXPORTED)
     }
 
     private fun startScreenCaptureIntent() {

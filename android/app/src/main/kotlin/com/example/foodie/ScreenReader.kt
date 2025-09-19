@@ -10,13 +10,21 @@ import android.content.Intent
 import android.os.Bundle
 import android.os.Build
 import android.util.Log
+import android.accessibilityservice.AccessibilityServiceInfo
 
 private const val EXTRA_DRAWABLE_RESOURCES = "android.view.accessibility.extra.DRAWABLE_RESOURCES"
 
 class ScreenReader: AccessibilityService() { 
-    override fun onServiceConnected() { // 無障礙服務開啟後的廣播 用來告訴 MainActivity 無障礙服務已啟動要開啟app
+    override fun onServiceConnected() {
         super.onServiceConnected()
-        Log.d("ScreenReaderService", "Accessibility Service Connected")
+        val info = serviceInfo
+        info.eventTypes =
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED or
+            AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED
+        info.notificationTimeout = 50
+        this.serviceInfo = info
+        Log.d("ScreenReaderService", "Accessibility Service Connected (reconfigured)")
         val intent = Intent("com.example.foodie.ACCESSIBILITY_ENABLED")
         intent.setPackage(packageName)
         sendBroadcast(intent)
@@ -30,12 +38,27 @@ class ScreenReader: AccessibilityService() {
         return super.onUnbind(intent)
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) { // 接收無障礙模式事件
-        val rootNode = event?.source
-        if (rootNode != null) {
-            organizeUITree(rootNode)
-            //printNodeTree(rootNode)
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event == null) return
+        Log.d(
+            "ScreenReaderService",
+            "Event type=${event.eventType} class=${event.className} text=${event.text} contentDesc=${event.contentDescription}"
+        )
+        val sourceNode = event.source
+        when (event.eventType) {
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {
+                if (sourceNode != null) {
+                    organizeUITree(sourceNode)
+                }
+            }
+            AccessibilityEvent.TYPE_VIEW_ACCESSIBILITY_FOCUSED -> {
+                if (sourceNode != null) {
+                    Log.d("ScreenReaderService", "Focused node: ${sourceNode.text ?: sourceNode.contentDescription}")
+                }
+            }
         }
+        
     }
 
     override fun onInterrupt() {

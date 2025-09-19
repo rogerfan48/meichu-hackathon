@@ -64,6 +64,11 @@
 	<true/>
 	<key>UIApplicationSupportsIndirectInputEvents</key>
 	<true/>
+  <key>NSAppTransportSecurity</key>
+  <dict>
+    <key>NSAllowsLocalNetworking</key>
+    <true/>
+  </dict>
   <key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need to your location to display on the map.</string>
 </dict>

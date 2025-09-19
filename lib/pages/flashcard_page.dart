@@ -56,12 +56,14 @@ class _FlashcardPageState extends State<FlashcardPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                IconButton(
-                  icon: const Icon(Icons.thumb_down),
+                _AnimatedThumbButton(
+                  icon: Icons.thumb_down,
+                  color: Colors.red,
                   onPressed: _nextCard,
                 ),
-                IconButton(
-                  icon: const Icon(Icons.thumb_up),
+                _AnimatedThumbButton(
+                  icon: Icons.thumb_up,
+                  color: Colors.green,
                   onPressed: _nextCard,
                 ),
               ],
@@ -95,6 +97,10 @@ class _CardState extends State<_Card> {
       model: 'gemini-pro-vision',
       apiKey: apiKey,
     );
+  }
+
+  bool _isChinese(String text) {
+    return RegExp(r'[\u4E00-\u9FFF]').hasMatch(text);
   }
 
   @override
@@ -138,43 +144,114 @@ class _CardState extends State<_Card> {
   @override
   Widget build(BuildContext context) {
     return Center(
-      child: FlipCard(
-        front: Card(
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Text(widget.text,
-                style: Theme.of(context).textTheme.headlineMedium),
-          ),
-        ),
-        back: Card(
-          elevation: 4,
-          child: Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: FutureBuilder<Uint8List?>(
-              future: _imageFuture,
-              builder: (context, snapshot) {
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const CircularProgressIndicator();
-                } else if (snapshot.hasError) {
-                  return const Icon(Icons.error);
-                } else if (snapshot.hasData) {
-                  return Image.memory(snapshot.data!);
-                } else {
-                  // Placeholder when no image is available.
-                  return const Icon(Icons.image_not_supported);
-                }
-              },
+      child: SizedBox(
+        width: 300,
+        height: 450,
+        child: FlipCard(
+          front: Card(
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: Text(widget.text,
+                  style: Theme.of(context).textTheme.headlineMedium),
             ),
           ),
+          back: Card(
+            elevation: 4,
+            child: Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: FutureBuilder<Uint8List?>(
+                future: _imageFuture,
+                builder: (context, snapshot) {
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const CircularProgressIndicator();
+                  } else if (snapshot.hasError) {
+                    return const Icon(Icons.error);
+                  } else if (snapshot.hasData) {
+                    return Image.memory(snapshot.data!);
+                  } else {
+                    // Placeholder when no image is available.
+                    return const Icon(Icons.image_not_supported);
+                  }
+                },
+              ),
+            ),
+          ),
+          onFlip: () {
+            if (_imageFuture == null) {
+              final lang = _isChinese(widget.text) ? 'zh-TW' : 'en-US';
+              flutterTts.setLanguage(lang);
+              setState(() {
+                _imageFuture = _generateImage(widget.text);
+              });
+            }
+          },
+          onFlipDone: (isFront) {
+            if (isFront) {
+              flutterTts.speak(widget.text);
+            }
+          },
         ),
-        onFlip: () {
-          if (_imageFuture == null) {
-            setState(() {
-              _imageFuture = _generateImage(widget.text);
-            });
-          }
-        },
+      ),
+    );
+  }
+}
+
+class _AnimatedThumbButton extends StatefulWidget {
+  final IconData icon;
+  final Color color;
+  final VoidCallback onPressed;
+
+  const _AnimatedThumbButton({
+    required this.icon,
+    required this.color,
+    required this.onPressed,
+  });
+
+  @override
+  State<_AnimatedThumbButton> createState() => _AnimatedThumbButtonState();
+}
+
+class _AnimatedThumbButtonState extends State<_AnimatedThumbButton>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _animation;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 100),
+    );
+    _animation = Tween<double>(begin: 1.0, end: 1.5).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _onTap() async {
+    await _controller.forward();
+    await _controller.reverse();
+    widget.onPressed();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return GestureDetector(
+      onTap: _onTap,
+      child: ScaleTransition(
+        scale: _animation,
+        child: Icon(
+          widget.icon,
+          color: widget.color,
+          size: 32,
+        ),
       ),
     );
   }

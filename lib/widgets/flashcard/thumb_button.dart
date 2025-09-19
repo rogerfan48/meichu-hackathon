@@ -13,10 +13,10 @@ class AnimatedThumbButton extends StatefulWidget {
   });
 
   @override
-  State<AnimatedThumbButton> createState() => _AnimatedThumbButtonState();
+  State<AnimatedThumbButton> createState() => AnimatedThumbButtonState();
 }
 
-class _AnimatedThumbButtonState extends State<AnimatedThumbButton>
+class AnimatedThumbButtonState extends State<AnimatedThumbButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _animation;
@@ -33,15 +33,18 @@ class _AnimatedThumbButtonState extends State<AnimatedThumbButton>
     );
   }
 
+  Future<void> playAnimation() async {
+    await _controller.forward();
+    await _controller.reverse();
+  }
+
   @override
   void dispose() {
     _controller.dispose();
     super.dispose();
   }
 
-  Future<void> _onTap() async {
-    await _controller.forward();
-    await _controller.reverse();
+  void _onTap() {
     widget.onPressed();
   }
 

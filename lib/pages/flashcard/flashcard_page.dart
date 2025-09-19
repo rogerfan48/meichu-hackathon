@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import 'package:foodie/widgets/flashcard/thumb_button.dart';
 import 'package:foodie/widgets/flashcard/flash_card.dart';
+import 'package:foodie/widgets/flashcard/flashcard_deck.dart';
 
 import '../../api_key.dart';
 
@@ -14,38 +15,23 @@ class FlashcardPage extends StatefulWidget {
 }
 
 class _FlashcardPageState extends State<FlashcardPage> {
-  final SwiperController _swiperController = SwiperController();
+  final FlashcardDeckController _deckController = FlashcardDeckController();
   final List<String> _cardTexts = const ['蘋果', 'Banana', 'Orange'];
   final GlobalKey<AnimatedThumbButtonState> _thumbUpKey = GlobalKey();
   final GlobalKey<AnimatedThumbButtonState> _thumbDownKey = GlobalKey();
 
-  // Swipe state
-  double _dragDx = 0.0;
-  bool _gestureConsumed = false;
-  int _currentIndex = 0;
-
   @override
   void dispose() {
-    _swiperController.dispose();
+    _deckController.dispose();
     super.dispose();
   }
 
   void _thumbUp() {
-    if (_currentIndex >= _cardTexts.length - 1) {
-      _thumbUpKey.currentState?.playAnimation();
-      return;
-    }
-    _thumbUpKey.currentState?.playAnimation();
-    _swiperController.next();
+    _deckController.thumbUp();
   }
 
   void _thumbDown() {
-    if (_currentIndex >= _cardTexts.length - 1) {
-      _thumbDownKey.currentState?.playAnimation();
-      return;
-    }
-    _thumbDownKey.currentState?.playAnimation();
-    _swiperController.next();
+    _deckController.thumbDown();
   }
 
   @override
@@ -54,43 +40,16 @@ class _FlashcardPageState extends State<FlashcardPage> {
       body: Column(
         children: [
           Expanded(
-            child: GestureDetector(
-              behavior: HitTestBehavior.opaque,
-              onHorizontalDragStart: (_) {
-                _dragDx = 0.0;
-                _gestureConsumed = false;
+            child: FlashcardDeck(
+              controller: _deckController,
+              cardTexts: _cardTexts,
+              itemWidth: 500.0,
+              onThumbUpGesture: () {
+                _thumbUpKey.currentState?.playAnimation();
               },
-              onHorizontalDragUpdate: (details) {
-                if (_gestureConsumed) return;
-                _dragDx += details.delta.dx;
-                const double trigger = 40.0; // sensitivity threshold in px
-                if (_dragDx > trigger) {
-                  _gestureConsumed = true;
-                  _thumbUp();
-                } else if (_dragDx < -trigger) {
-                  _gestureConsumed = true;
-                  _thumbDown();
-                }
+              onThumbDownGesture: () {
+                _thumbDownKey.currentState?.playAnimation();
               },
-              onHorizontalDragEnd: (_) {
-                _dragDx = 0.0;
-                _gestureConsumed = false;
-              },
-              child: Swiper(
-                controller: _swiperController,
-                itemCount: _cardTexts.length,
-                itemBuilder: (context, index) {
-                  return FlashCard(text: _cardTexts[index]);
-                },
-                physics: const NeverScrollableScrollPhysics(),
-                allowImplicitScrolling: false,
-                layout: SwiperLayout.STACK,
-                itemWidth: 500.0,
-                loop: false,
-                onIndexChanged: (i) {
-                  _currentIndex = i;
-                },
-              ),
             ),
           ),
           Padding(

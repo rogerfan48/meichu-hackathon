@@ -21,28 +21,22 @@ class MainActivity : FlutterActivity() {
         MethodChannel(flutterEngine.dartExecutor.binaryMessenger, CHANNEL).setMethodCallHandler {
             call, result ->
             if (call.method == "startProjection") {
-                if (!isAccessibilityServiceEnabled()) {
-                    Log.d("MainActivity", "Accessibility Service not enabled. Opening settings.")
-                    startScreenCaptureIntent()
-                } else {
-                    Log.d("MainActivity", "Accessibility Service is already enabled.")
-                    runTheApp()
-                }
+                jumpToAccessibilitySetting()
                 result.success(true)
             } else if (call.method == "stopProjection") {
-                if (isAccessibilityServiceEnabled()) {
-                    stopScreenCaptureIntent()
-                }
+                jumpToAccessibilitySetting()
                 result.success(true)
-            } else if (call.method == "isAccessibilityServiceEnabled") {
-                result.success(isAccessibilityServiceEnabled())
+            } else if (call.method == "isScreenReaderEnabled") {
+                result.success(isScreenReaderEnabled())
+            } else if (call.method == "isTalkBackEnabled") {
+                result.success(isTalkBackEnabled())
             } else {
                 result.notImplemented()
             }
         }
     }
 
-    private fun isAccessibilityServiceEnabled(): Boolean { // 檢查無障礙服務是否啟動
+    private fun isScreenReaderEnabled(): Boolean { // 檢查無障礙服務是否啟動
         val service = "$packageName/${ScreenReader::class.java.canonicalName}"
         try {
             val enabledServices = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
@@ -62,7 +56,27 @@ class MainActivity : FlutterActivity() {
         return false
     }
 
-    override fun onCreate(savedInstanceState: Bundle?) { // 接收無障礙服務啟動的廣播 用來開啟 app
+    private fun isTalkBackEnabled(): Boolean { // 檢查TalkBack是否啟動
+        val talkBackService = "com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService"
+        try {
+            val enabledServices = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
+            val colonSplitter = TextUtils.SimpleStringSplitter(':')
+            if (enabledServices != null) {
+                colonSplitter.setString(enabledServices)
+                while (colonSplitter.hasNext()) {
+                    val componentName = colonSplitter.next()
+                    if (componentName.equals(talkBackService, ignoreCase = true)) {
+                        return true
+                    }
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("MainActivity", "Error checking TalkBack service", e)
+        }
+        return false
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) { // 接收無障礙服務啟動的廣播 用來自動開啟 app
         super.onCreate(savedInstanceState)
         val enabledFilter = IntentFilter("com.example.foodie.ACCESSIBILITY_ENABLED")
         registerReceiver(object : BroadcastReceiver() {
@@ -80,16 +94,9 @@ class MainActivity : FlutterActivity() {
         }, disabledFilter, RECEIVER_EXPORTED)
     }
 
-    private fun startScreenCaptureIntent() {
+    private fun jumpToAccessibilitySetting() {
         // Implement your screen capture logic here
-        Log.d("MainActivity", "Screen capture intent started")
-        val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
-        startActivity(intent)
-    }
-
-    private fun stopScreenCaptureIntent() {
-        // Implement your screen capture logic here
-        Log.d("MainActivity", "Screen capture intent stopped")
+        Log.d("MainActivity", "Jump to Accessibility Setting")
         val intent = Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS)
         startActivity(intent)
     }

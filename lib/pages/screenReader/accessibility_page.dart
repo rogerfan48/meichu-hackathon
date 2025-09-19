@@ -9,13 +9,15 @@ class AccessibilityPage extends StatefulWidget {
 }
 
 class _AccessibilityPageState extends State<AccessibilityPage> with WidgetsBindingObserver {
-  bool _isFeatureOn = false;
+  bool _isAccessibilityOn = false;
+  bool _isTalkBackOn = false;
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addObserver(this);
-    _checkServiceStatus();
+    _checkAccessibilityStatus();
+    _checkTalkBackStatus();
   }
 
   @override
@@ -27,15 +29,25 @@ class _AccessibilityPageState extends State<AccessibilityPage> with WidgetsBindi
   @override
   void didChangeAppLifecycleState(AppLifecycleState state) {
     if (state == AppLifecycleState.resumed) {
-      _checkServiceStatus();
+      _checkAccessibilityStatus();
+      _checkTalkBackStatus();
     }
   }
 
-  Future<void> _checkServiceStatus() async {
-    final bool isEnabled = await isAccessibilityServiceEnabled();
+  Future<void> _checkAccessibilityStatus() async {
+    final bool isEnabled = await isScreenReaderEnabled();
     if (mounted) {
       setState(() {
-        _isFeatureOn = isEnabled;
+        _isAccessibilityOn = isEnabled;
+      });
+    }
+  }
+
+  Future<void> _checkTalkBackStatus() async {
+    final bool isEnabled = await isTalkBackEnabled();
+    if (mounted && isEnabled != _isTalkBackOn) {
+      setState(() {
+        _isTalkBackOn = isEnabled;
       });
     }
   }
@@ -52,18 +64,34 @@ class _AccessibilityPageState extends State<AccessibilityPage> with WidgetsBindi
           SwitchListTile(
             title: const Text('Enable Feature'),
             subtitle: const Text('Toggle the accessibility feature on or off'),
-            value: _isFeatureOn,
+            value: _isAccessibilityOn,
             onChanged: (bool value) async {
               setState(() {
-                _isFeatureOn = value;
+                _isAccessibilityOn = value;
               });
-              if (_isFeatureOn) {
+              if (_isAccessibilityOn) {
                   await startProjection();
               } else {
                   await stopProjection();
               }
             },
             secondary: const Icon(Icons.accessibility_new),
+          ),
+          SwitchListTile(
+            title: const Text('Enable Feature'),
+            subtitle: const Text('Toggle the TalkBack feature on or off'),
+            value: _isTalkBackOn,
+            onChanged: (bool value) async {
+              setState(() {
+                _isTalkBackOn = value;
+              });
+              if (_isTalkBackOn) {
+                  await startProjection();
+              } else {
+                  await stopProjection();
+              }
+            },
+            secondary: const Icon(Icons.dialpad),
           ),
         ],
       ),

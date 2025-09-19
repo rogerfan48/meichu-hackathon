@@ -20,11 +20,20 @@ Future<void> stopProjection() async {
   }
 }
 
-Future<bool> isAccessibilityServiceEnabled() async {
+Future<bool> isScreenReaderEnabled() async {
   try {
-    return await platform.invokeMethod('isAccessibilityServiceEnabled') ?? false;
+    return await platform.invokeMethod('isScreenReaderEnabled') ?? false;
   } on PlatformException catch (e) {
-    developer.log("Failed to check accessibility service: '${e.message}'.", name: 'ScreenReader');
+    developer.log("Failed to check screen reader: '${e.message}'.", name: 'ScreenReader');
+    return false;
+  }
+}
+
+Future<bool> isTalkBackEnabled() async {
+  try {
+    return await platform.invokeMethod('isTalkBackEnabled') ?? false;
+  } on PlatformException catch (e) {
+    developer.log("Failed to check TalkBack service: '${e.message}'.", name: 'ScreenReader');
     return false;
   }
 }

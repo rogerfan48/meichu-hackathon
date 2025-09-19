@@ -30,6 +30,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  card_swiper: ^3.0.1
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
@@ -62,7 +63,6 @@ dependencies:
   google_generative_ai: ^0.4.3
   flip_card: ^0.7.0
 
-
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -83,6 +83,7 @@ flutter:
     - assets/imgs/
     - assets/map_styles/
     - assets/imgs/brand_logo.png
+    - assets/3d_model/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

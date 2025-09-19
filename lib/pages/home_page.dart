@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:model_viewer_plus/model_viewer_plus.dart';
+import 'package:foodie/widgets/flashcard/model_viewer.dart';
 
 class HomePage extends StatefulWidget {
   const HomePage({super.key});
@@ -24,18 +24,9 @@ class _HomePageState extends State<HomePage> {
       appBar: AppBar(
         title: const Text('Ready Player Me'),
       ),
-      body: ModelViewer(
-        src: _modelUrl,
-        alt: 'A 3D model of a character',
-        poster: 'assets/imgs/brand_logo.png',
-        ar: false,
-        autoRotate: false,
-        cameraControls: false,
-        cameraTarget: '0m 0.55m 0m',
-        cameraOrbit: '0deg 90deg 0.8m',
-        disableZoom: true,
-        animationName: _isTalking ? 'standing_talking' : 'idle',
-        shadowIntensity: 0,
+      body: CharacterModelViewer(
+        modelUrl: _modelUrl,
+        isTalking: _isTalking,
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {

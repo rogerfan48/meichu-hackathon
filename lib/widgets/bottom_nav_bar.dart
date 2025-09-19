@@ -12,10 +12,12 @@ class BottomNavBar extends StatelessWidget {
       backgroundColor: Theme.of(context).colorScheme.secondaryContainer,
       currentIndex: currentIndex,
       onTap: onTap,
+      type: BottomNavigationBarType.fixed,
       items: const [
         BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
         BottomNavigationBarItem(icon: Icon(Icons.style), label: "Flashcard"),
-        BottomNavigationBarItem(icon: Icon(Icons.lightbulb), label: "Accessibility"),
+        BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
+        BottomNavigationBarItem(icon: Icon(Icons.accessibility), label: "Accessibility"),
       ],
     );
   }

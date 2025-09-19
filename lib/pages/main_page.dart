@@ -9,7 +9,7 @@ class MainPage extends StatelessWidget {
   static final _tabs = [
     '/home',
     '/flashcard',
-    '/ai',
+    '/accessibility',
   ];
 
   @override

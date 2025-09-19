@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:foodie/models/user_model.dart';
 
 class UserRepository {
-  final FirebaseFirestore _db = FirebaseFirestore.instance;
+  //final FirebaseFirestore _db = FirebaseFirestore.instance;
   final CollectionReference _userCollection;
   final timeout = const Duration(seconds: 10);
 

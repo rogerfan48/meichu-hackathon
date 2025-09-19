@@ -1,19 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:provider/provider.dart';
-import 'package:foodie/repositories/restaurant_repo.dart';
-import 'package:foodie/repositories/review_repo.dart';
-import 'package:foodie/repositories/user_repo.dart';
-import 'package:foodie/services/storage_service.dart';
-import 'package:foodie/view_models/restaurant_detail_vm.dart';
-import 'package:foodie/pages/restaurant_info_page.dart';
-import 'package:foodie/pages/restaurant_menu_page.dart';
-import 'package:foodie/pages/restaurant_reviews_page.dart';
 import 'package:foodie/pages/main_page.dart';
-import 'package:foodie/pages/ai_page.dart';
 import 'package:foodie/pages/home_page.dart';
-import 'package:foodie/pages/flashcard_page.dart';
+import 'package:foodie/pages/flashcard/flashcard_page.dart';
+import 'package:foodie/pages/screenReader/accessibility_page.dart';
 
 final routerConfig = GoRouter(
   initialLocation: '/home',
@@ -23,7 +14,7 @@ final routerConfig = GoRouter(
       routes: [
         GoRoute(path: '/home', pageBuilder: (context, state) => const NoTransitionPage(child: HomePage())),
         GoRoute(path: '/flashcard', pageBuilder: (context, state) => const NoTransitionPage(child: FlashcardPage())),
-        GoRoute(path: '/ai', pageBuilder: (context, state) => NoTransitionPage(child: AiPage())),
+        GoRoute(path: '/accessibility', pageBuilder: (context, state) => NoTransitionPage(child: AccessibilityPage())),
       ],
     ),
   ],
@@ -37,13 +28,13 @@ final routerConfig = GoRouter(
 );
 
 class NavigationService {
-  late final GoRouter _router;
+  // late final GoRouter _router;
 
-  NavigationService() {
-    _router = routerConfig;
-  }
+  // NavigationService() {
+  //   _router = routerConfig;
+  // }
 
-  String _currentPath(BuildContext context) {
-    return GoRouterState.of(context).uri.path;
-  }
+  // String _currentPath(BuildContext context) {
+  //   return GoRouterState.of(context).uri.path;
+  // }
 }

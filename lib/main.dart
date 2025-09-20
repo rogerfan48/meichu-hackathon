@@ -136,7 +136,7 @@ void main() async {
           },
         ),
       ],
-      child: ShowCaseWidget(builder: (context) => const FoodieApp()),
+      child: ShowCaseWidget(builder: (context) => const lexiaidApp()),
     ),
   );
 }

@@ -63,7 +63,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '278558299485',
     projectId: 'lexiaid-2e3b5',
     storageBucket: 'lexiaid-2e3b5.firebasestorage.app',
-    iosBundleId: 'com.nthucs.foodie',
+    iosBundleId: 'com.nthucs.lexiaid',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -72,7 +72,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '278558299485',
     projectId: 'lexiaid-2e3b5',
     storageBucket: 'lexiaid-2e3b5.firebasestorage.app',
-    iosBundleId: 'com.example.foodie',
+    iosBundleId: 'com.example.lexiaid',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

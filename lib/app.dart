@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:foodie/services/navigation.dart';
-import 'package:foodie/services/theme.dart';
-import 'package:foodie/theme/theme.dart';
+import 'package:lexiaid/services/navigation.dart';
+import 'package:lexiaid/services/theme.dart';
+import 'package:lexiaid/theme/theme.dart';
 
-class FoodieApp extends StatelessWidget {
-  const FoodieApp({super.key});
+class lexiaidApp extends StatelessWidget {
+  const lexiaidApp({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +14,7 @@ class FoodieApp extends StatelessWidget {
     final themeService = context.watch<ThemeService>();
 
     return MaterialApp.router(
-      title: 'Foodie',
+      title: 'lexiaid',
       theme: theme.light(),
       darkTheme: theme.dark(),
       themeMode: themeService.themeMode,

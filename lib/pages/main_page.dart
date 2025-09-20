@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
-import 'package:foodie/widgets/bottom_nav_bar.dart';
+import 'package:lexiaid/widgets/bottom_nav_bar.dart';
 
 class MainPage extends StatelessWidget {
   final Widget child;

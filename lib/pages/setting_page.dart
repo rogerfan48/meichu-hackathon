@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodie/services/channel.dart';
+import 'package:lexiaid/services/channel.dart';
 import 'package:provider/provider.dart';
 import '../view_models/account_vm.dart';
 import '../view_models/settings_page_view_model.dart';

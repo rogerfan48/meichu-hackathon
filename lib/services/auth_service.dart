@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:foodie/repositories/user_repository.dart';
+import 'package:lexiaid/repositories/user_repository.dart';
 
 class AuthService {
   final FirebaseAuth _auth;

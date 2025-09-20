@@ -1,4 +1,4 @@
-package com.example.foodie
+package com.example.lexiaid
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -17,14 +17,14 @@ class ScreenReader: AccessibilityService() {
     override fun onServiceConnected() { // 無障礙服務開啟後的廣播 用來告訴 MainActivity 無障礙服務已啟動要開啟app
         super.onServiceConnected()
         Log.d("ScreenReaderService", "Accessibility Service Connected")
-        val intent = Intent("com.example.foodie.ACCESSIBILITY_ENABLED")
+        val intent = Intent("com.example.lexiaid.ACCESSIBILITY_ENABLED")
         intent.setPackage(packageName)
         sendBroadcast(intent)
     }
 
     override fun onUnbind(intent: Intent?): Boolean { // 無障礙服務關閉後的廣播 用來告訴 MainActivity 無障礙服務已關閉要關閉app
         Log.d("ScreenReaderService", "Accessibility Service Disconnected")
-        val intent = Intent("com.example.foodie.ACCESSIBILITY_DISABLED")
+        val intent = Intent("com.example.lexiaid.ACCESSIBILITY_DISABLED")
         intent.setPackage(packageName)
         sendBroadcast(intent)
         return super.onUnbind(intent)

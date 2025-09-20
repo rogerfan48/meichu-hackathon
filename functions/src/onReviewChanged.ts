@@ -10,22 +10,22 @@ if (admin.apps.length === 0) {
 const db = admin.firestore();
 
 // This function triggers when a review document is written (created, updated, or deleted).
-// It assumes your reviews are stored in a collection like 'apps/foodie/reviews/{reviewId}'.
+// It assumes your reviews are stored in a collection like 'apps/lexiaid/reviews/{reviewId}'.
 // Each review document is expected to have:
 // - restaurantId: string
 // - text: string (the content of the review)
 // - dishId?: string (optional, if the review is for a specific dish)
 //
 // Summaries will be stored in:
-// - Dish summary: 'apps/foodie/restaurants/{restaurantId}/menu/{dishId}' (field: reviewSummary)
-// - Restaurant summary: 'apps/foodie/restaurants/{restaurantId}' (field: reviewSummary)
+// - Dish summary: 'apps/lexiaid/restaurants/{restaurantId}/menu/{dishId}' (field: reviewSummary)
+// - Restaurant summary: 'apps/lexiaid/restaurants/{restaurantId}' (field: reviewSummary)
 
 // export const onReviewChanged = functions.firestore // Old v1 syntax
-//   .document('apps/foodie/reviews/{reviewId}')
+//   .document('apps/lexiaid/reviews/{reviewId}')
 //   .onWrite(async (change, context) => {
 
 // New v2 syntax
-export const onReviewChanged = onDocumentWritten('apps/foodie/reviews/{reviewId}', async (event) => {
+export const onReviewChanged = onDocumentWritten('apps/lexiaid/reviews/{reviewId}', async (event) => {
     const reviewId = event.params.reviewId; // Access params from event.params
     console.log(`[${reviewId}] Review change detected. Processing...`);
 
@@ -94,7 +94,7 @@ export const onReviewChanged = onDocumentWritten('apps/foodie/reviews/{reviewId}
       if (dishId) {
         console.log(`[${reviewId}] Summarizing reviews for specific dish: ${dishId} in restaurant: ${restaurantId}`);
 
-        const dishReviewsSnapshot = await db.collection('apps/foodie/reviews')
+        const dishReviewsSnapshot = await db.collection('apps/lexiaid/reviews')
           .where('restaurantID', '==', restaurantId)
           .where('dishID', '==', dishId)
           .get();
@@ -103,7 +103,7 @@ export const onReviewChanged = onDocumentWritten('apps/foodie/reviews/{reviewId}
           .map(doc => doc.data().content as string) 
           .filter(text => !!text && text.trim() !== "");
 
-        const dishDocRef = db.doc(`apps/foodie/restaurants/${restaurantId}/menu/${dishId}`);
+        const dishDocRef = db.doc(`apps/lexiaid/restaurants/${restaurantId}/menu/${dishId}`);
 
         if (dishSpecificReviewTexts.length === 0) {
           console.log(`[${reviewId}] No valid reviews found for dish ${dishId}. Clearing dish summary.`);
@@ -123,7 +123,7 @@ export const onReviewChanged = onDocumentWritten('apps/foodie/reviews/{reviewId}
       console.log(`[${reviewId}] Regenerating overall summary for restaurant: ${restaurantId}`);
 
       // 2a. Fetch general restaurant reviews (dishID is null)
-      const generalReviewsSnapshot = await db.collection('apps/foodie/reviews')
+      const generalReviewsSnapshot = await db.collection('apps/lexiaid/reviews')
           .where('restaurantID', '==', restaurantId)
           .where('dishID', '==', null)
           .get();
@@ -132,7 +132,7 @@ export const onReviewChanged = onDocumentWritten('apps/foodie/reviews/{reviewId}
           .filter(text => !!text && text.trim() !== "");
 
       // 2b. Fetch all dish reviews for this restaurant (dishID is not null)
-      const allDishReviewsSnapshot = await db.collection('apps/foodie/reviews')
+      const allDishReviewsSnapshot = await db.collection('apps/lexiaid/reviews')
           .where('restaurantID', '==', restaurantId)
           .where('dishID', '!=', null)
           .get();
@@ -146,7 +146,7 @@ export const onReviewChanged = onDocumentWritten('apps/foodie/reviews/{reviewId}
 
           if (specificDishId && reviewContent && reviewContent.trim() !== "") {
               try {
-                  const specificDishDocRef = db.doc(`apps/foodie/restaurants/${restaurantId}/menu/${specificDishId}`);
+                  const specificDishDocRef = db.doc(`apps/lexiaid/restaurants/${restaurantId}/menu/${specificDishId}`);
                   const dishDocSnapshot = await specificDishDocRef.get();
                   
                   if (dishDocSnapshot.exists) {
@@ -166,7 +166,7 @@ export const onReviewChanged = onDocumentWritten('apps/foodie/reviews/{reviewId}
 
       // 2d. Combine all review texts for the restaurant
       const allRestaurantReviewTexts = [...generalReviewTexts, ...formattedDishReviewTexts];
-      const restaurantDocRef = db.doc(`apps/foodie/restaurants/${restaurantId}`);
+      const restaurantDocRef = db.doc(`apps/lexiaid/restaurants/${restaurantId}`);
 
       if (allRestaurantReviewTexts.length === 0) {
           console.log(`[${reviewId}] No valid reviews found for restaurant ${restaurantId}. Clearing restaurant summary.`);

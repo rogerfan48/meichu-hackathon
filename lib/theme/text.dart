@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
-import 'package:foodie/theme/theme.dart';
+import 'package:lexiaid/theme/theme.dart';
 
 TextTheme buildTextTheme(ColorScheme cs) {
   return TextTheme(

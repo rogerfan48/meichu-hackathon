@@ -28,5 +28,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app requires speech recognition access to function.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires microphone access to function.</string>
 </dict>
 </plist>

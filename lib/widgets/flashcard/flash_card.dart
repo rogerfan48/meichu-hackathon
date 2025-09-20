@@ -45,7 +45,7 @@ class _FlashCardState extends State<FlashCard> {
   Widget build(BuildContext context) {
     return Center(
       child: SizedBox(
-        width: 100,
+        width: 300,
         height: 200,
         child: FlipCard(
           front: Card(

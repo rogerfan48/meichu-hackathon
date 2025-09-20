@@ -71,5 +71,9 @@
   </dict>
   <key>NSLocationWhenInUseUsageDescription</key>
 	<string>We need to your location to display on the map.</string>
+	<key>NSSpeechRecognitionUsageDescription</key>
+	<string>This app requires speech recognition access to function.</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>This app requires microphone access to function.</string>
 </dict>
 </plist>

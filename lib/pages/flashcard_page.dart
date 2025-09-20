@@ -4,6 +4,7 @@ import '../view_models/cards_page_view_model.dart';
 import '../view_models/account_vm.dart';
 import '../widgets/flashcard/game_view.dart';
 import '../widgets/flashcard/management_view.dart';
+import '../widgets/flashcard/quiz_mode_view.dart';
 
 class FlashcardPage extends StatelessWidget {
   const FlashcardPage({super.key});
@@ -17,11 +18,8 @@ class FlashcardPage extends StatelessWidget {
         body: const Center(
           child: Padding(
             padding: EdgeInsets.all(24.0),
-            child: Text(
-              '請先至「設定」頁面登入以使用單字卡功能。',
-              textAlign: TextAlign.center,
-              style: TextStyle(fontSize: 18, color: Colors.grey),
-            ),
+            child: Text('請先至「設定」頁面登入以使用單字卡功能。',
+              textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: Colors.grey)),
           ),
         ),
       );
@@ -33,7 +31,7 @@ class FlashcardPage extends StatelessWidget {
           return const Scaffold(body: Center(child: Text('ViewModel 初始化中...')));
         }
         return DefaultTabController(
-          length: 2,
+          length: 3,
           child: Scaffold(
             appBar: AppBar(
               title: const Text('單字卡'),
@@ -41,11 +39,11 @@ class FlashcardPage extends StatelessWidget {
               bottom: TabBar(
                 tabs: const [
                   Tab(text: '管理卡片', icon: Icon(Icons.view_list)),
-                  Tab(text: '遊戲模式', icon: Icon(Icons.games)),
+                  Tab(text: '複習模式', icon: Icon(Icons.school)),
+                  Tab(text: '測驗模式', icon: Icon(Icons.mic)),
                 ],
                 onTap: (index) {
-                  // 從遊戲模式切換走時，重設遊戲狀態
-                  if (viewModel.gameState != GameState.setup && index == 0) {
+                  if (viewModel.gameState != GameState.setup && index != 1) {
                     viewModel.endGame();
                   }
                 },
@@ -66,10 +64,11 @@ class FlashcardPage extends StatelessWidget {
         return Center(child: Text(viewModel.errorMessage ?? '發生未知錯誤'));
       case CardsPageState.idle:
         return TabBarView(
-          physics: const NeverScrollableScrollPhysics(), // 禁止滑動切換 Tab
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             CardManagementView(viewModel: viewModel),
             GameView(viewModel: viewModel),
+            QuizModeView(viewModel: viewModel),
           ],
         );
     }

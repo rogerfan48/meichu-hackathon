@@ -62,8 +62,9 @@ dependencies:
   google_generative_ai: ^0.4.3
   flip_card: ^0.7.0
   flutter_card_swiper: ^7.0.2
-  # speech_to_text: ^6.6.0  # Temporarily disabled due to compilation issues
+  speech_to_text: ^7.3.0
   permission_handler: ^11.3.1
+  path: ^1.9.1
 
 dev_dependencies:
   flutter_test:

@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-// import 'package:speech_to_text/speech_to_text.dart' as stt;  // Temporarily disabled
-import 'package:permission_handler/permission_handler.dart';
+import 'package:speech_to_text/speech_to_text.dart' as stt;
 
-import 'package:foodie/widgets/flashcard/flashcard_deck.dart';
 import 'package:foodie/widgets/flashcard/icon_button.dart';
 
 class FlashcardPracticePage extends StatefulWidget {
@@ -13,39 +10,52 @@ class FlashcardPracticePage extends StatefulWidget {
   State<FlashcardPracticePage> createState() => _FlashcardPracticePageState();
 }
 
-class _FlashcardPracticePageState extends State<FlashcardPracticePage> {
-  final FlashcardDeckController _deckController = FlashcardDeckController();
-  final List<String> _cardTexts = const ['蘋果', 'Banana', 'Orange', 'Strawberry'];
-  int _currentIndex = 0;
-  bool _isRecording = false;
-  // late stt.SpeechToText _speech;  // Temporarily disabled
+class _FlashcardPracticePageState extends State<FlashcardPracticePage> with TickerProviderStateMixin {
+  final stt.SpeechToText _speech = stt.SpeechToText();
   String _recognizedWords = '';
+  bool _speechEnabled = false;
+  bool _isRecording = false;
 
   @override
   void initState() {
     super.initState();
-    // _speech = stt.SpeechToText();  // Temporarily disabled
-    _requestPermission();
+    _initSpeech();
   }
 
-  Future<void> _requestPermission() async {
-    var status = await Permission.microphone.status;
-    if (status.isDenied) {
-      await Permission.microphone.request();
+  void _initSpeech() async {
+    _speechEnabled = await _speech.initialize(
+      onStatus: (status) {
+        if (mounted) {
+          setState(() {
+            _isRecording = status == 'listening';
+          });
+        }
+      },
+      onError: (error) {
+        if (mounted) {
+          setState(() {
+            _isRecording = false;
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Speech recognition error: ${error.errorMsg}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      debugLogging: true,
+    );
+
+    if (mounted) {
+      setState(() {});
     }
   }
 
   @override
   void dispose() {
-    _deckController.dispose();
-    // _speech.stop();  // Temporarily disabled
+    _speech.stop();
     super.dispose();
-  }
-
-  void _onIndexChanged(int index) {
-    setState(() {
-      _currentIndex = index;
-    });
   }
 
   void _toggleRecording() {
@@ -57,42 +67,28 @@ class _FlashcardPracticePageState extends State<FlashcardPracticePage> {
   }
 
   void _startListening() async {
-    // Speech functionality temporarily disabled
     setState(() {
-      _isRecording = true;
-      _recognizedWords = 'Speech recognition temporarily disabled';
+      _recognizedWords = '';
     });
-    
-    // Simulate speech recognition for testing
-    await Future.delayed(const Duration(seconds: 2));
-    setState(() {
-      _recognizedWords = _cardTexts[_currentIndex];  // Auto-correct for testing
-      _isRecording = false;
-    });
-    _checkAnswer();
-  }
 
-  void _stopListening() {
-    // _speech.stop();  // Temporarily disabled
-    setState(() => _isRecording = false);
-  }
-
-  void _checkAnswer() {
-    final currentCardText = _cardTexts[_currentIndex];
-    final isCorrect = _recognizedWords.trim().toLowerCase() == currentCardText.trim().toLowerCase();
-
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(isCorrect ? 'Correct!' : 'Try again! You said: $_recognizedWords'),
-        backgroundColor: isCorrect ? Colors.green : Colors.red,
-      ),
+    await _speech.listen(
+      onResult: (result) {
+        setState(() {
+          _recognizedWords = result.recognizedWords;
+        });
+      },
+      listenFor: const Duration(seconds: 30),
+      localeId: 'zh-TW', // Changed to English for simplicity
+      cancelOnError: true,
+      partialResults: true,
+      listenMode: stt.ListenMode.confirmation,
     );
+    setState(() {});
+  }
 
-    if (isCorrect) {
-      _deckController.thumbUp();
-    } else {
-      _deckController.thumbDown();
-    }
+  void _stopListening() async {
+    await _speech.stop();
+    setState(() {});
   }
 
   @override
@@ -101,56 +97,38 @@ class _FlashcardPracticePageState extends State<FlashcardPracticePage> {
     final colorScheme = theme.colorScheme;
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Flashcard Practice')),
-      body: Column(
-        children: [
-          Expanded(
-            child: FlashcardDeck(
-              controller: _deckController,
-              cardTexts: _cardTexts,
-              onIndexChanged: _onIndexChanged,
-              onEnd: () => context.pop(),
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.symmetric(vertical: 8.0),
-            child: Text(
-              _isRecording ? "Listening..." : "Press the mic to speak",
-              style: theme.textTheme.titleMedium,
-            ),
-          ),
-          if (_recognizedWords.isNotEmpty)
-            Padding(
-              padding: const EdgeInsets.only(bottom: 8.0),
-              child: Text(
-                'You said: $_recognizedWords',
-                style: theme.textTheme.bodyLarge,
+      appBar: AppBar(
+        title: const Text('Voice Recognition Test'),
+        centerTitle: true,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Expanded(
+              child: Container(
+                padding: const EdgeInsets.all(16.0),
+                child: Center(
+                  child: Text(
+                    _recognizedWords.isEmpty
+                        ? 'Press the mic button and start speaking'
+                        : _recognizedWords,
+                    style: theme.textTheme.headlineSmall,
+                    textAlign: TextAlign.center,
+                  ),
+                ),
               ),
             ),
-          Padding(
-            padding: const EdgeInsets.all(24.0),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                AnimatedIconButton(
-                  icon: Icons.chevron_left,
-                  color: colorScheme.secondaryContainer,
-                  onPressed: () => _deckController.thumbDown(),
-                ),
-                AnimatedIconButton(
-                  icon: _isRecording ? Icons.mic_off : Icons.mic,
-                  color: _isRecording ? Colors.red : colorScheme.primary,
-                  onPressed: _toggleRecording,
-                ),
-                AnimatedIconButton(
-                  icon: Icons.chevron_right,
-                  color: colorScheme.secondaryContainer,
-                  onPressed: () => _deckController.thumbUp(),
-                ),
-              ],
+            Padding(
+              padding: const EdgeInsets.all(24.0),
+              child: AnimatedIconButton(
+                icon: _isRecording ? Icons.mic : Icons.mic_off,
+                color: _isRecording ? colorScheme.primary : (_speechEnabled ? Colors.red : Colors.grey),
+                onPressed: _speechEnabled ? _toggleRecording : () {},
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

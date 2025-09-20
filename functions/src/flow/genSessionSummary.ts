@@ -208,20 +208,30 @@ function makeId(prefix: string, idx: number) {
 // Main Cloud Function
 export const genSessionSummaryFlow = functions.https.onCall(async (data, context) => {
   const fileURLs: string[] = data.data?.fileURLs || [];
-  
-  // Step 1: create a new session document
-  const sessionDoc = {
-    sessionName: `Session ${new Date().toISOString()}`,
-    fileResources: {} as Record<string, { id: string; fileURL: string; fileSummary?: string | null }>,
-    summary: null as string | null,
-    imgExplanations: {} as Record<string, { id: string; imgURL: string; explanation?: string | null }>,
-    cardIDs: [] as string[],
-    status: "processing",
-    fileSummariesJson: [] as string[],
-  };
+  const sessionID: string = data.data?.sessionID;
+  const uid = data.data?.uid;
 
-  const sessionRef = await db.collection("sessions").add(sessionDoc);
-  const sessionID = sessionRef.id;
+  // Step 1: use existing session document (sessionID is provided)
+  const sessionRef = db
+    .collection("apps")
+    .doc("lexiaid")
+    .collection("users")
+    .doc(uid)
+    .collection("sessions")
+    .doc(sessionID);
+
+  // Initialize / mark processing without overwriting existing fields unnecessarily
+  // const sessionDoc = {
+  //   sessionName: `Session ${new Date().toISOString()}`,
+  //   fileResources: {} as Record<string, { id: string; fileURL: string; fileSummary?: string | null }>,
+  //   summary: null as string | null,
+  //   imgExplanations: {} as Record<string, { id: string; imgURL: string; explanation?: string | null }>,
+  //   cardIDs: [] as string[],
+  //   status: "processing",
+  //   fileSummariesJson: [] as string[],
+  // };
+
+  // await sessionRef.set(sessionDoc, { merge: true });
 
   const fileSummaries: FileSummary[] = [];
   const fileSummariesJsonStrings: string[] = [];

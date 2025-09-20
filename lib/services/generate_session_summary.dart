@@ -44,13 +44,15 @@ class SessionSummaryResult {
 /// 4. Generate image ideas to help explain the concepts
 /// 5. Generate actual images and store them in Cloud Storage
 /// 6. Update the session document with all results
-Future<SessionSummaryResult> generateSessionSummary(List<String> fileURLs) async {
+Future<SessionSummaryResult> generateSessionSummary(List<String> fileURLs, String sessionID, String userID) async {
   try {
     final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('genSessionSummary');
     
     // For functions.https.onCall, the data is passed directly
     final response = await callable.call({
       'fileURLs': fileURLs,
+      "sessionID": sessionID,
+      "uid": userID,
     });
     
     final data = response.data as Map<String, dynamic>;

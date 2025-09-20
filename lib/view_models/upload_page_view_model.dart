@@ -4,6 +4,8 @@ import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
+import 'package:lexiaid/services/generate_session_summary.dart';
+import 'package:lexiaid/services/process_existing_session.dart';
 
 import '../models/session_model.dart';
 import '../repositories/session_repository.dart';
@@ -120,6 +122,7 @@ class UploadPageViewModel extends ChangeNotifier {
       await sessionRepository.upsertSession(userId, initialSession);
 
       final totalFiles = _selectedFiles.length;
+      List<String> fileURLs = [];
       for (int i = 0; i < totalFiles; i++) {
         final file = _selectedFiles[i];
         final fileName = p.basename(file.path);
@@ -128,6 +131,8 @@ class UploadPageViewModel extends ChangeNotifier {
         notifyListeners();
         final gsUrl = await storageService.uploadFile(userId: userId, sessionId: sessionId, file: file);
         final fileResource = FileResource(id: fileName, fileURL: gsUrl);
+        final downloadUrl = await storageService.getDownloadUrl(gsUrl);
+        fileURLs.add(downloadUrl);
         await sessionRepository.addFileResource(userId, sessionId, fileResource);
       }
       
@@ -135,7 +140,8 @@ class UploadPageViewModel extends ChangeNotifier {
       _statusMessage = '所有檔案上傳完畢，正在啟動 AI 處理...';
       notifyListeners();
 
-      await functionsService.runSessionPipeline(userId: userId, sessionId: sessionId);
+      // await functionsService.runSessionPipeline(userId: userId, sessionId: sessionId);
+      await processExistingSession(sessionId, userId);
       await sessionRepository.updateStatus(userId, sessionId, 'processing');
 
       _statusMessage = '成功！新 Session "$sessionName" 已建立並進入處理佇列。';

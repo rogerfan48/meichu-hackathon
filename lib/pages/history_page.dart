@@ -62,15 +62,15 @@ class _HistoryPageState extends State<HistoryPage> {
       _isLoading = true;
     });
 
-    // Mock data
+    // Mock data - each session represents one upload session
     Future.delayed(const Duration(milliseconds: 500), () {
       if (mounted) {
         setState(() {
           _sessions = [
             SessionModel(
               id: '1',
-              name: 'Machine Learning Study Session',
-              createdAt: DateTime.now().subtract(const Duration(days: 2)),
+              name: 'Session 2024-09-20 14:30', // Default timestamp name
+              createdAt: DateTime.now().subtract(const Duration(hours: 3)),
               updatedAt: DateTime.now().subtract(const Duration(hours: 3)),
               fileNames: ['ml_notes.pdf', 'algorithms.txt'],
               summary: 'Comprehensive study of machine learning algorithms including supervised and unsupervised learning methods.',
@@ -78,21 +78,21 @@ class _HistoryPageState extends State<HistoryPage> {
             ),
             SessionModel(
               id: '2', 
-              name: 'Flutter Development',
-              createdAt: DateTime.now().subtract(const Duration(days: 5)),
-              updatedAt: DateTime.now().subtract(const Duration(days: 1)),
+              name: 'Flutter Study Session', // User renamed this one
+              createdAt: DateTime.now().subtract(const Duration(days: 1)),
+              updatedAt: DateTime.now().subtract(const Duration(hours: 5)),
               fileNames: ['flutter_widgets.md', 'state_management.pdf'],
               summary: 'Flutter app development fundamentals and state management patterns.',
               cardCount: 18,
             ),
             SessionModel(
               id: '3',
-              name: 'Physics Concepts',
-              createdAt: DateTime.now().subtract(const Duration(days: 7)),
+              name: 'Session 2024-09-17 09:15', // Default timestamp name
+              createdAt: DateTime.now().subtract(const Duration(days: 3)),
               updatedAt: DateTime.now().subtract(const Duration(days: 3)),
               fileNames: ['quantum_mechanics.pdf'],
-              summary: null,
-              cardCount: 12,
+              summary: null, // Summary not generated yet
+              cardCount: 0,
             ),
           ];
           _isLoading = false;
@@ -131,6 +131,60 @@ class _HistoryPageState extends State<HistoryPage> {
     );
   }
 
+  void _renameSession(SessionModel session) {
+    String newName = session.name;
+    
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Rename Session'),
+        content: TextField(
+          controller: TextEditingController(text: session.name),
+          onChanged: (value) => newName = value,
+          decoration: const InputDecoration(
+            labelText: 'Session Name',
+            border: OutlineInputBorder(),
+          ),
+          autofocus: true,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Cancel'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (newName.trim().isNotEmpty && newName.trim() != session.name) {
+                setState(() {
+                  final index = _sessions.indexWhere((s) => s.id == session.id);
+                  if (index != -1) {
+                    _sessions[index] = SessionModel(
+                      id: session.id,
+                      name: newName.trim(),
+                      createdAt: session.createdAt,
+                      updatedAt: DateTime.now(), // Update the modified time
+                      fileNames: session.fileNames,
+                      summary: session.summary,
+                      cardCount: session.cardCount,
+                    );
+                  }
+                });
+                Navigator.pop(context);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('Session renamed to "${newName.trim()}"')),
+                );
+                // TODO: Update session name in backend
+              } else {
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Rename'),
+          ),
+        ],
+      ),
+    );
+  }
+
   void _openSessionDetail(SessionModel session) {
     Navigator.push(
       context,
@@ -159,7 +213,7 @@ class _HistoryPageState extends State<HistoryPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sessions History'),
+        title: const Text('Upload History'),
         automaticallyImplyLeading: false,
         actions: [
           IconButton(
@@ -179,12 +233,12 @@ class _HistoryPageState extends State<HistoryPage> {
                       Icon(Icons.history, size: 64, color: Colors.grey),
                       SizedBox(height: 16),
                       Text(
-                        'No Sessions Yet',
+                        'No Upload Sessions Yet',
                         style: TextStyle(fontSize: 18, color: Colors.grey),
                       ),
                       SizedBox(height: 8),
                       Text(
-                        'Create your first session in the Upload page!',
+                        'Upload your first files to create a session!',
                         style: TextStyle(fontSize: 14, color: Colors.grey),
                         textAlign: TextAlign.center,
                       ),
@@ -259,11 +313,21 @@ class _HistoryPageState extends State<HistoryPage> {
                         ),
                         trailing: PopupMenuButton<String>(
                           onSelected: (value) {
-                            if (value == 'delete') {
+                            if (value == 'rename') {
+                              _renameSession(session);
+                            } else if (value == 'delete') {
                               _deleteSession(session);
                             }
                           },
                           itemBuilder: (context) => [
+                            const PopupMenuItem(
+                              value: 'rename',
+                              child: ListTile(
+                                leading: Icon(Icons.edit),
+                                title: Text('Rename Session'),
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                            ),
                             const PopupMenuItem(
                               value: 'delete',
                               child: ListTile(

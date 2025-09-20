@@ -21,8 +21,6 @@ class _UploadPageState extends State<UploadPage> with TickerProviderStateMixin {
   List<MockFile> _selectedFiles = [];
   bool _isUploading = false;
   double _uploadProgress = 0.0;
-  String _currentSessionName = '';
-  List<String> _sessions = []; // TODO: Connect to backend
   late AnimationController _animationController;
 
   @override
@@ -32,20 +30,12 @@ class _UploadPageState extends State<UploadPage> with TickerProviderStateMixin {
       duration: const Duration(seconds: 2),
       vsync: this,
     )..repeat();
-    _loadSessions(); // TODO: Connect to backend
   }
 
   @override
   void dispose() {
     _animationController.dispose();
     super.dispose();
-  }
-
-  void _loadSessions() {
-    // TODO: Load sessions from backend
-    setState(() {
-      _sessions = ['Study Session 1', 'Work Documents', 'Research Papers'];
-    });
   }
 
   Future<void> _pickFiles() async {
@@ -86,17 +76,12 @@ class _UploadPageState extends State<UploadPage> with TickerProviderStateMixin {
       return;
     }
 
-    if (_currentSessionName.isEmpty) {
-      _showSnackBar('Please create or select a session');
-      return;
-    }
-
     setState(() {
       _isUploading = true;
       _uploadProgress = 0.0;
     });
 
-    // TODO: Implement actual upload logic
+    // TODO: Implement actual upload logic and create new session
     for (int i = 0; i < 10; i++) {
       await Future.delayed(const Duration(milliseconds: 300));
       setState(() {
@@ -104,55 +89,21 @@ class _UploadPageState extends State<UploadPage> with TickerProviderStateMixin {
       });
     }
 
+    // Create session with timestamp as default name
+    final sessionName = 'Session ${DateTime.now().toString().substring(0, 19)}';
+    
     setState(() {
       _isUploading = false;
       _selectedFiles.clear();
     });
 
-    _showSnackBar('Files uploaded successfully!');
-    // TODO: Generate summary and add to flashcards
+    _showSnackBar('Files uploaded successfully! New session "$sessionName" created.');
+    // TODO: Save session to backend and generate summary
   }
 
   void _showSnackBar(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text(message)),
-    );
-  }
-
-  void _showCreateSessionDialog() {
-    String newSessionName = '';
-    
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Create New Session'),
-        content: TextField(
-          onChanged: (value) => newSessionName = value,
-          decoration: const InputDecoration(
-            hintText: 'Enter session name',
-            border: OutlineInputBorder(),
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (newSessionName.trim().isNotEmpty) {
-                setState(() {
-                  _sessions.add(newSessionName.trim());
-                  _currentSessionName = newSessionName.trim();
-                });
-                Navigator.pop(context);
-                // TODO: Create session in backend
-              }
-            },
-            child: const Text('Create'),
-          ),
-        ],
-      ),
     );
   }
 
@@ -312,57 +263,12 @@ class _UploadPageState extends State<UploadPage> with TickerProviderStateMixin {
       appBar: AppBar(
         title: const Text('Upload Files'),
         automaticallyImplyLeading: false,
-        actions: [
-          IconButton(
-            onPressed: _showCreateSessionDialog,
-            icon: const Icon(Icons.add),
-            tooltip: 'Create New Session',
-          ),
-        ],
       ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
-            // Session Selection
-            Card(
-              child: Padding(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Text(
-                      'Select Session',
-                      style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-                    ),
-                    const SizedBox(height: 8),
-                    DropdownButtonFormField<String>(
-                      value: _currentSessionName.isEmpty ? null : _currentSessionName,
-                      hint: const Text('Choose a session'),
-                      decoration: const InputDecoration(
-                        border: OutlineInputBorder(),
-                        contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
-                      ),
-                      items: _sessions.map((session) {
-                        return DropdownMenuItem<String>(
-                          value: session,
-                          child: Text(session),
-                        );
-                      }).toList(),
-                      onChanged: (value) {
-                        setState(() {
-                          _currentSessionName = value ?? '';
-                        });
-                      },
-                    ),
-                  ],
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 16),
-
             // Take Photo Button
             ElevatedButton.icon(
               onPressed: _isUploading ? null : _takePhoto,

@@ -11,6 +11,7 @@ class FlashcardDeckController {
 
   void thumbUp() => _state?._handleThumbUp();
   void thumbDown() => _state?._handleThumbDown();
+  int getIndex() => _state?._getCurrentIndex() ?? 0;
 }
 
 class FlashcardDeck extends StatefulWidget {
@@ -67,6 +68,10 @@ class _FlashcardDeckState extends State<FlashcardDeck> {
   void _handleThumbDown() {
     widget.onThumbDownGesture?.call();
     _swiperController.swipe(CardSwiperDirection.left);
+  }
+
+  int _getCurrentIndex() {
+    return _currentIndex;
   }
 
   @override

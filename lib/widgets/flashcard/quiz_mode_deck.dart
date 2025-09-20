@@ -55,7 +55,7 @@ class _QuizModeDeckState extends State<QuizModeDeck> {
         child: Padding(
           padding: EdgeInsets.all(24.0),
           child: Text(
-            '沒有可用的卡片來開始測驗。\n請先新增一些卡片！',
+            '沒有可用的卡片來開始測驗。\n請先新增一些卡片!',
             textAlign: TextAlign.center,
             style: TextStyle(fontSize: 18, color: Colors.grey),
           ),

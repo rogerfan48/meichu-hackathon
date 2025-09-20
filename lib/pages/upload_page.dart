@@ -8,6 +8,12 @@ import '../view_models/account_vm.dart';
 class UploadPage extends StatelessWidget {
   const UploadPage({super.key});
 
+  // 輔助方法：根據副檔名判斷是否為圖片
+  bool _isImageFile(String path) {
+    final extension = p.extension(path).toLowerCase();
+    return ['.png', '.jpg', '.jpeg', '.gif', '.webp', '.bmp'].contains(extension);
+  }
+
   @override
   Widget build(BuildContext context) {
     final accountVM = context.watch<AccountViewModel>();
@@ -45,7 +51,6 @@ class UploadPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // ** 關鍵修改：將按鈕放入一個 Row **
                 Row(
                   children: [
                     Expanded(
@@ -89,7 +94,6 @@ class UploadPage extends StatelessWidget {
     );
   }
 
-  // ... 其他所有 build 方法 (_buildMainContent, _buildUploadArea 等) 保持不變 ...
   Widget _buildMainContent(BuildContext context, UploadPageViewModel viewModel) {
     switch (viewModel.state) {
       case UploadPageState.idle: return _buildUploadArea(context, viewModel);
@@ -101,6 +105,7 @@ class UploadPage extends StatelessWidget {
   }
   
   Widget _buildUploadArea(BuildContext context, UploadPageViewModel viewModel) {
+    // ... 此方法保持不變 ...
     return Card(
       child: InkWell(
         onTap: () => viewModel.pickFiles(),
@@ -151,9 +156,20 @@ class UploadPage extends StatelessWidget {
                 final file = viewModel.selectedFiles[index];
                 final fileSize = file.lengthSync();
                 return ListTile(
-                  leading: Icon(_getFileIcon(p.extension(file.path))),
+                  // ** 關鍵修改 **
+                  leading: _isImageFile(file.path)
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(4.0),
+                          child: Image.file(
+                            file,
+                            width: 40,
+                            height: 40,
+                            fit: BoxFit.cover,
+                          ),
+                        )
+                      : Icon(_getFileIcon(p.extension(file.path))),
                   title: Text(p.basename(file.path), overflow: TextOverflow.ellipsis),
-                  subtitle: Text('${(fileSize / 1024).toStringAsFixed(1)} KB'),
+                  subtitle: Text('${(fileSize / 1024 / 1024).toStringAsFixed(2)} MB'),
                   trailing: IconButton(onPressed: () => viewModel.removeFile(index), icon: const Icon(Icons.close)),
                 );
               },
@@ -172,6 +188,7 @@ class UploadPage extends StatelessWidget {
   }
   
   Widget _buildProgressArea(BuildContext context, UploadPageViewModel viewModel) {
+    // ... 此方法保持不變 ...
     IconData icon;
     Color iconColor;
     Widget progressWidget;
@@ -217,6 +234,7 @@ class UploadPage extends StatelessWidget {
   }
   
   Widget _buildBottomButton(BuildContext context, UploadPageViewModel viewModel) {
+    // ... 此方法保持不變 ...
     switch (viewModel.state) {
       case UploadPageState.idle: return ElevatedButton(onPressed: null, style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)), child: const Text('上傳並生成總結', style: TextStyle(fontSize: 16)));
       case UploadPageState.filesSelected: return ElevatedButton.icon(onPressed: () => viewModel.uploadAndCreateSession(), icon: const Icon(Icons.cloud_upload), label: const Text('上傳並生成總結', style: TextStyle(fontSize: 16)), style: ElevatedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 16)));

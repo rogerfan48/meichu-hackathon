@@ -3,6 +3,7 @@ import 'package:lexiaid/services/channel.dart';
 import 'package:provider/provider.dart';
 import '../view_models/account_vm.dart';
 import '../view_models/settings_page_view_model.dart';
+import '../services/theme.dart';
 
 class SettingPage extends StatelessWidget {
   const SettingPage({super.key});
@@ -227,12 +228,17 @@ class SettingPage extends StatelessWidget {
   }
 
   Widget _buildThemeSwitch(BuildContext context) {
+    final themeService = context.watch<ThemeService>();
+    final isDarkMode = themeService.themeMode == ThemeMode.dark ||
+        (themeService.themeMode == ThemeMode.system &&
+            MediaQuery.of(context).platformBrightness == Brightness.dark);
+            
     return SwitchListTile(
       secondary: const Icon(Icons.dark_mode_outlined),
       title: const Text('深色模式'),
-      value: Theme.of(context).brightness == Brightness.dark,
+      value: isDarkMode,
       onChanged: (bool value) {
-        _showSnackBar(context, '主題切換功能尚未實作');
+        context.read<ThemeService>().toggleTheme();
       },
     );
   }

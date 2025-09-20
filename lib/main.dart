@@ -6,9 +6,10 @@ import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:showcaseview/showcaseview.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 import 'app.dart';
-import 'repositories/user_repo.dart';
+import 'repositories/user_repository.dart';
 import 'services/auth_service.dart';
 import 'services/theme.dart';
 import 'view_models/account_vm.dart';
@@ -22,7 +23,7 @@ void main() async {
     MultiProvider(
       providers: [
         // 1. Repositories (數據層)
-        Provider<UserRepository>(create: (_) => UserRepository()),
+        Provider<UserRepository>(create: (_) => UserRepository(FirebaseFirestore.instance)),
 
         // 2. Firebase 服務實例
         Provider<FirebaseAuth>(create: (_) => FirebaseAuth.instance),

@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
-import 'package:foodie/repositories/user_repo.dart';
+import 'package:foodie/repositories/user_repository.dart';
 
 class AuthService {
   final FirebaseAuth _auth;
@@ -49,9 +49,9 @@ class AuthService {
       final existingUserData = userDoc.data() as Map<String, dynamic>;
       if (existingUserData['userName'] != user.displayName ||
           existingUserData['photoURL'] != user.photoURL) {
-        await _userRepository.updateUserProfile(
+        await _userRepository.updateUserProfileFromAuth(
           user.uid,
-          user.displayName ?? 'Foodie User',
+          user.displayName ?? 'User',
           user.photoURL,
         );
       }

@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
 import '../models/card_model.dart';
 import '../models/session_model.dart';
@@ -20,6 +21,14 @@ class UserRepository {
 
   Future<void> updateUserProfile(String uid, Map<String, dynamic> profileUpdates) async {
     await _userRef(uid).update(profileUpdates);
+  }
+
+  // Update user profile with specific parameters (for compatibility with auth_service)
+  Future<void> updateUserProfileFromAuth(String uid, String userName, String? photoURL) async {
+    await _userRef(uid).update({
+      'userName': userName,
+      if (photoURL != null) 'photoURL': photoURL,
+    });
   }
 
   // Watch complete user profile with cards and sessions
@@ -50,6 +59,18 @@ class UserRepository {
       'uid': profile.uid,
       'userName': profile.userName,
       'defaultSpeechRate': profile.defaultSpeechRate,
+      'cards': {}, // Initialize as empty map for nested card structure
+      'sessions': {}, // Initialize as empty map for nested session structure
+    });
+  }
+
+  // Create user from Firebase Auth User (for compatibility with auth_service)
+  Future<void> createUser(User user) async {
+    await _userRef(user.uid).set({
+      'uid': user.uid,
+      'userName': user.displayName ?? 'User',
+      'photoURL': user.photoURL,
+      'defaultSpeechRate': 1.0,
       'cards': {}, // Initialize as empty map for nested card structure
       'sessions': {}, // Initialize as empty map for nested session structure
     });
@@ -116,6 +137,11 @@ class UserRepository {
   Future<bool> userExists(String uid) async {
     final doc = await _userRef(uid).get();
     return doc.exists;
+  }
+
+  // Get user document (for compatibility with auth_service)
+  Future<DocumentSnapshot<Map<String, dynamic>>> getUser(String uid) async {
+    return await _userRef(uid).get();
   }
 
   // Delete user (for cleanup)

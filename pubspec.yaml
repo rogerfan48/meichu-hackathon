@@ -49,6 +49,7 @@ dependencies:
   url_launcher: ^6.2.1
   firebase_storage: ^12.4.6
   image_picker: ^1.1.2
+  file_picker: ^8.1.6
   intl: ^0.20.2
   uuid: ^4.5.1
   photo_view: ^0.15.0

@@ -1,5 +1,5 @@
 class FirestorePaths {
-  static String userDoc(String uid) => 'apps/hackathon/users/$uid';
+  static String userDoc(String uid) => 'apps/lexiaid/users/$uid';
   static String cards(String uid) => '${userDoc(uid)}/cards'; // map path usage helper
   static String sessions(String uid) => '${userDoc(uid)}/sessions';
   // Map-based field keys inside user document

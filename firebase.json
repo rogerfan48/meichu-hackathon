@@ -1,13 +1,50 @@
-{"flutter":
-    {
-        "platforms":{
-            "android":{
-                "default":{
-                    "projectId":"foodie-4dee6",
-                    "appId":"1:346523381880:android:1db3a9c0da80f54643bd8d",
-                    "fileOutput":"android/app/google-services.json"
-                }
-            }
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "lexiaid-2e3b5",
+          "appId": "1:278558299485:android:94cc70f1eabb003fb204b4",
+          "fileOutput": "android/app/google-services.json"
         }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "lexiaid-2e3b5",
+          "configurations": {
+            "android": "1:278558299485:android:94cc70f1eabb003fb204b4",
+            "ios": "1:278558299485:ios:128ce1e2b8a34196b204b4",
+            "macos": "1:278558299485:ios:c3081a108f60da39b204b4",
+            "web": "1:278558299485:web:553fe31e57e98e20b204b4",
+            "windows": "1:278558299485:web:9a1505d2865455f2b204b4"
+          }
+        }
+      }
     }
+  },
+  "firestore": {
+    "database": "(default)",
+    "location": "nam5",
+    "rules": "firestore.rules",
+    "indexes": "firestore.indexes.json"
+  },
+  "functions": [
+    {
+      "codebase": "default",
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ],
+      "source": "functions",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ]
+    }
+  ],
+  "storage": {
+    "rules": "storage.rules"
+  }
 }

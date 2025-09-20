@@ -4,7 +4,6 @@ import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
 import android.view.accessibility.AccessibilityNodeInfo
 import android.content.Intent
-import android.os.Build
 import android.util.Log
 import android.accessibilityservice.AccessibilityServiceInfo
 import android.view.WindowManager
@@ -18,7 +17,7 @@ import android.view.KeyEvent
 
 class ScreenReader: AccessibilityService() { 
 
-    data class NodeSet( // 用來分類 UI 樹的資料結構
+    data class NodeSet(
         val texts: MutableList<AccessibilityNodeInfo> = mutableListOf(),
         val images: MutableList<AccessibilityNodeInfo> = mutableListOf(),
         val tools: MutableList<AccessibilityNodeInfo> = mutableListOf()
@@ -28,6 +27,7 @@ class ScreenReader: AccessibilityService() {
     private var overlayView: View? = null
     private var windowManager: WindowManager? = null
     private var gestureDetector: GestureDetector? = null
+    private var isOverlayVisible: Boolean = false
 
     private val gestureListener = object : SimpleOnGestureListener() {
         override fun onLongPress(e: MotionEvent) {
@@ -35,10 +35,8 @@ class ScreenReader: AccessibilityService() {
             val y = e.rawY.toInt()
             Log.d("ScreenReaderService", "Long press detected at screen coordinates: x=$x, y=$y")
             findNodebyOffset(x, y)?.let { node ->
-
                 Log.d("ScreenReaderService", "Node found at long press location: class=${node.className} text=${node.text} desc=${node.contentDescription} clickable=${node.isClickable}")
             }
-            // 在這裡你可以使用 x 和 y 座標進行後續操作
         }
         override fun onSingleTapUp(e: MotionEvent): Boolean {
             Log.d("ScreenReaderService", "Press detected")
@@ -56,42 +54,18 @@ class ScreenReader: AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
-        // Get the existing service info
         val info = serviceInfo
-        // Set the event types you want to receive
         info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
                           AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
 
         info.flags = AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS
         
-        // Apply the new configuration
         this.serviceInfo = info
 
-        // ----懸浮視窗-----
         windowManager = getSystemService(WINDOW_SERVICE) as WindowManager
-        overlayView = View(this)
-        
-        val layoutParams = WindowManager.LayoutParams(
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.MATCH_PARENT,
-            WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY,
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or WindowManager.LayoutParams.FLAG_WATCH_OUTSIDE_TOUCH,
-            PixelFormat.TRANSPARENT
-        )
-        layoutParams.gravity = Gravity.TOP or Gravity.LEFT
-
+        // 預設不建立懸浮視窗
+        overlayView = null
         gestureDetector = GestureDetector(this, gestureListener)
-        overlayView?.setOnTouchListener { _, event ->
-            gestureDetector?.onTouchEvent(event)
-            false
-        }
-
-        try {
-            windowManager?.addView(overlayView, layoutParams)
-        } catch (e: Exception) {
-            Log.e("ScreenReaderService", "Failed to add overlay view", e)
-        }
-        // ----懸浮視窗-----
 
         Log.d("ScreenReaderService", "Accessibility Service Connected")
         val intent = Intent("com.example.foodie.ACCESSIBILITY_ENABLED")
@@ -111,31 +85,8 @@ class ScreenReader: AccessibilityService() {
         return super.onUnbind(intent)
     }
 
-    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
-        if (event == null) return
-        val sourceNode = event.source
-        when (event.eventType) {
-            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
-            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {  
-                if (sourceNode != null) {
-                    organizeUITree(sourceNode)
-                    //printNodeTree(sourceNode)
-                }
-            }
-        }
-        
-    }
-
     override fun onInterrupt() {
         Log.d("ScreenReaderService", "Service Interrupted")
-    }
-
-    private fun printNodeTree(node: AccessibilityNodeInfo?, indent: String = "") { // 印出整棵 UI 樹，方便 debug
-        if (node == null) return
-        Log.d("ScreenReaderService", "$indent- ${node.className} | text: ${node.text} | contentDesc: ${node.contentDescription}")
-        for (i in 0 until node.childCount) {
-            printNodeTree(node.getChild(i), indent + "  ")
-        }
     }
 
     private fun decodeTree(node: AccessibilityNodeInfo?, nodeSet: NodeSet) { //把 UI 樹分類成 text, image, tool 三個陣列，刪掉沒有文字或圖片資訊的 node
@@ -152,27 +103,6 @@ class ScreenReader: AccessibilityService() {
         for (i in 0 until node.childCount) { 
             decodeTree(node.getChild(i), nodeSet)
         }
-    }
-
-    private fun organizeUITree(node: AccessibilityNodeInfo?) {
-        
-        decodeTree(node, nodeSet)
-        // if (nodeSet.texts.isEmpty() && nodeSet.images.isEmpty() && nodeSet.tools.isEmpty()) return
-        // for( textNode in nodeSet.texts) {
-        //     val rect = android.graphics.Rect()
-        //     textNode.getBoundsInScreen(rect)
-        //     // Log.d("ScreenReaderService", "Text Node: ${textNode.text} | containsImg: ${textNode.contentDescription != null} | bounds: $rect")
-        // }
-        // for( imageNode in nodeSet.images) {
-        //     val rect = android.graphics.Rect()
-        //     imageNode.getBoundsInScreen(rect)
-        //     // Log.d("ScreenReaderService", "Image Node: ${imageNode.contentDescription ?: "No description"} | bounds: $rect")
-        // }
-        // for( toolNode in nodeSet.tools) {
-        //     val rect = android.graphics.Rect()
-        //     toolNode.getBoundsInScreen(rect)
-        //     // Log.d("ScreenReaderService", "Tool Node: ${toolNode.className} | text: ${toolNode.text ?: "No text"} | desc: ${toolNode.contentDescription ?: "No description"} | bounds: $rect")
-        // }
     }
 
     private fun findNodebyOffset(x: Int, y: Int): AccessibilityNodeInfo? { // 根據座標找 node
@@ -193,25 +123,23 @@ class ScreenReader: AccessibilityService() {
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
         Log.d("ScreenReaderService", "Key event: keyCode=${event.keyCode} action=${event.action}")
-        if (event.action == KeyEvent.ACTION_DOWN) { // 只在按下時觸發
+        if (event.action == KeyEvent.ACTION_DOWN) {
             when (event.keyCode) {
                 KeyEvent.KEYCODE_VOLUME_UP -> {
                     Log.d("ScreenReaderService", "Volume Up key pressed")
-                    // 在這裡處理音量增加的邏輯
                     setOverlayVisible(true)
                 }
                 KeyEvent.KEYCODE_VOLUME_DOWN -> {
                     Log.d("ScreenReaderService", "Volume Down key pressed")
-                    // 在這裡處理音量減少的邏輯
                     setOverlayVisible(false)
                 }
             }
         }
-        // 回傳 super.onKeyEvent(event) 可以讓系統繼續處理預設行為 (調整音量)
         return super.onKeyEvent(event)
     }
 
-    fun setOverlayVisible(isVisible: Boolean) {
+    fun setOverlayVisible(isVisible: Boolean) { // 控制懸浮視窗顯示與否
+        isOverlayVisible = isVisible
         if (isVisible) {
             if (overlayView == null && windowManager != null) {
                 overlayView = View(this)
@@ -249,4 +177,46 @@ class ScreenReader: AccessibilityService() {
             }
         }
     }
+
+    override fun onAccessibilityEvent(event: AccessibilityEvent?) {
+        if (event == null) return
+        val sourceNode = event.source
+        when (event.eventType) {
+            AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED,
+            AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED -> {  
+                if (sourceNode != null) {
+                    //organizeUITree(sourceNode)
+                    //printNodeTree(sourceNode)
+                }
+            }
+        }
+    }
+
+    // private fun printNodeTree(node: AccessibilityNodeInfo?, indent: String = "") { // 印出整棵 UI 樹，方便 debug
+    //     if (node == null) return
+    //     Log.d("ScreenReaderService", "$indent- ${node.className} | text: ${node.text} | contentDesc: ${node.contentDescription}")
+    //     for (i in 0 until node.childCount) {
+    //         printNodeTree(node.getChild(i), indent + "  ")
+    //     }
+    // }
+
+    // private fun organizeUITree(node: AccessibilityNodeInfo?) {
+    //     decodeTree(node, nodeSet)
+    //     if (nodeSet.texts.isEmpty() && nodeSet.images.isEmpty() && nodeSet.tools.isEmpty()) return
+    //     for( textNode in nodeSet.texts) {
+    //         val rect = android.graphics.Rect()
+    //         textNode.getBoundsInScreen(rect)
+    //         // Log.d("ScreenReaderService", "Text Node: ${textNode.text} | containsImg: ${textNode.contentDescription != null} | bounds: $rect")
+    //     }
+    //     for( imageNode in nodeSet.images) {
+    //         val rect = android.graphics.Rect()
+    //         imageNode.getBoundsInScreen(rect)
+    //         // Log.d("ScreenReaderService", "Image Node: ${imageNode.contentDescription ?: "No description"} | bounds: $rect")
+    //     }
+    //     for( toolNode in nodeSet.tools) {
+    //         val rect = android.graphics.Rect()
+    //         toolNode.getBoundsInScreen(rect)
+    //         // Log.d("ScreenReaderService", "Tool Node: ${toolNode.className} | text: ${toolNode.text ?: "No text"} | desc: ${toolNode.contentDescription ?: "No description"} | bounds: $rect")
+    //     }
+    // }
 }

@@ -2,7 +2,7 @@ import * as admin from 'firebase-admin';
 import * as functions from 'firebase-functions';
 import { VertexAI } from '@google-cloud/vertexai';
 import { Storage } from '@google-cloud/storage';
-import { Readable } from 'node:stream';
+// import { Readable } from 'node:stream';
 
 if (admin.apps.length === 0) {
   admin.initializeApp();

@@ -4,12 +4,14 @@ import '../view_models/cards_page_view_model.dart';
 import '../models/card_model.dart';
 import '../view_models/account_vm.dart';
 import '../models/session_model.dart';
+import '../widgets/firebase_image.dart'; // ** 引入新 Widget **
 
 class FlashcardPage extends StatelessWidget {
   const FlashcardPage({super.key});
 
   @override
   Widget build(BuildContext context) {
+    // ... build 方法的其他部分保持不變 ...
     final accountVM = context.watch<AccountViewModel>();
     if (!accountVM.isLoggedIn) {
       return Scaffold(
@@ -55,6 +57,7 @@ class FlashcardPage extends StatelessWidget {
   }
 
   Widget _buildBody(BuildContext context, CardsPageViewModel viewModel) {
+    // ... _buildBody 方法保持不變 ...
     switch (viewModel.pageState) {
       case CardsPageState.loading:
         return const Center(child: CircularProgressIndicator());
@@ -62,7 +65,7 @@ class FlashcardPage extends StatelessWidget {
         return Center(child: Text(viewModel.errorMessage ?? '發生未知錯誤'));
       case CardsPageState.idle:
         return TabBarView(
-          physics: const NeverScrollableScrollPhysics(), // Prevent swipe to change tabs
+          physics: const NeverScrollableScrollPhysics(),
           children: [
             _buildCardManagementView(context, viewModel),
             _buildGameView(context, viewModel),
@@ -71,15 +74,15 @@ class FlashcardPage extends StatelessWidget {
     }
   }
 
-  // --- Card Management View ---
   Widget _buildCardManagementView(BuildContext context, CardsPageViewModel viewModel) {
+    // ... _buildCardManagementView 方法的其他部分保持不變 ...
     return Column(
       children: [
         Padding(
           padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: ElevatedButton.icon(
-            onPressed: viewModel.allSessions.isEmpty 
-              ? null // Disable if no sessions exist
+            onPressed: viewModel.allSessions.isEmpty
+              ? null
               : () => _showAddOrEditCardDialog(context, viewModel),
             icon: const Icon(Icons.add),
             label: const Text('新增卡片'),
@@ -101,7 +104,7 @@ class FlashcardPage extends StatelessWidget {
                     return Card(
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       child: ListTile(
-                        leading: _buildCardImage(card),
+                        leading: _buildCardImage(card), // ** 這裡的方法被修改了 **
                         title: Text(card.text),
                         subtitle: Text('讚: ${card.goodCount}, 倒讚: ${card.badCount}'),
                         trailing: PopupMenuButton<String>(
@@ -129,94 +132,34 @@ class FlashcardPage extends StatelessWidget {
       ],
     );
   }
-  
-  // (Other build methods like _buildGameView, etc., remain unchanged)
 
-  // --- Add/Edit Card Dialog ---
-  void _showAddOrEditCardDialog(BuildContext context, CardsPageViewModel viewModel, {StudyCard? existingCard}) {
-    final isEditing = existingCard != null;
-    final textController = TextEditingController(text: isEditing ? existingCard.text : '');
-    final tagsController = TextEditingController(text: isEditing ? existingCard.tags.join(', ') : '');
-    // The selected session ID. For editing, it's the card's sessionID. For new, it defaults to the first session.
-    String? selectedSessionId = isEditing ? existingCard.sessionID : (viewModel.allSessions.isNotEmpty ? viewModel.allSessions.first.id : null);
-
-    showDialog(
-      context: context,
-      builder: (context) {
-        return StatefulBuilder( // Use StatefulBuilder to manage the dialog's state
-          builder: (context, setDialogState) {
-            return AlertDialog(
-              title: Text(isEditing ? '編輯卡片' : '新增卡片'),
-              content: SingleChildScrollView(
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    // Session Dropdown (only for new cards)
-                    if (!isEditing)
-                      DropdownButtonFormField<String>(
-                        value: selectedSessionId,
-                        items: viewModel.allSessions.map((Session session) {
-                          return DropdownMenuItem<String>(
-                            value: session.id,
-                            child: Text(session.sessionName),
-                          );
-                        }).toList(),
-                        onChanged: (String? newValue) {
-                          setDialogState(() {
-                            selectedSessionId = newValue;
-                          });
-                        },
-                        decoration: const InputDecoration(labelText: '選擇 Session'),
-                        validator: (value) => value == null ? '請選擇一個 Session' : null,
-                      ),
-                    TextField(
-                      controller: textController,
-                      decoration: const InputDecoration(labelText: '文字'),
-                      autofocus: true,
-                    ),
-                    TextField(
-                      controller: tagsController,
-                      decoration: const InputDecoration(labelText: '標籤 (以逗號分隔)'),
-                    ),
-                  ],
-                ),
-              ),
-              actions: [
-                TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('取消')),
-                ElevatedButton(
-                  onPressed: () {
-                    final text = textController.text.trim();
-                    if (text.isEmpty) return;
-                    if (selectedSessionId == null) return; // Should not happen if validated
-
-                    final tags = tagsController.text.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
-
-                    if (isEditing) {
-                      final updatedCard = existingCard.copyWith(text: text, tags: tags);
-                      viewModel.updateCard(updatedCard);
-                    } else {
-                      viewModel.createCard(sessionId: selectedSessionId!, text: text, tags: tags);
-                    }
-                    Navigator.of(context).pop();
-                  },
-                  child: const Text('儲存'),
-                ),
-              ],
-            );
-          }
-        );
-      },
+  // ** 關鍵修改 **
+  // 將 _buildCardImage 方法改為使用我們新的 FirebaseImage Widget
+  Widget _buildCardImage(StudyCard card) {
+    if (card.imgURL != null && card.imgURL!.startsWith('gs://')) {
+      return ClipRRect(
+        borderRadius: BorderRadius.circular(4),
+        child: FirebaseImage(
+          gsUri: card.imgURL!,
+          width: 50,
+          height: 50,
+          fit: BoxFit.cover,
+        ),
+      );
+    }
+    // 如果沒有圖片 URL，顯示預設圖示
+    return Container(
+      width: 50,
+      height: 50,
+      decoration: BoxDecoration(
+        color: Colors.grey[200],
+        borderRadius: BorderRadius.circular(4),
+      ),
+      child: const Icon(Icons.image_not_supported, color: Colors.grey),
     );
   }
-  
-  // Duplicated code from previous response for completeness
-  Widget _buildCardImage(StudyCard card) {
-    if (card.imgURL != null && card.imgURL!.isNotEmpty) {
-      return ClipRRect(borderRadius: BorderRadius.circular(4), child: Image.network(card.imgURL!, width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, size: 40)));
-    }
-    return Container(width: 50, height: 50, color: Colors.grey[200], child: const Icon(Icons.image_not_supported, color: Colors.grey));
-  }
 
+  // ... 其他所有 build 方法 (_buildGameView, _showAddOrEditCardDialog 等) 保持不變 ...
   Widget _buildGameView(BuildContext context, CardsPageViewModel viewModel) {
     switch (viewModel.gameState) {
       case GameState.setup: return _buildGameSetupView(context, viewModel);
@@ -253,6 +196,42 @@ class FlashcardPage extends StatelessWidget {
       const SizedBox(height: 24),
       ElevatedButton(onPressed: () => viewModel.endGame(), child: const Text('返回')),
     ]));
+  }
+
+  void _showAddOrEditCardDialog(BuildContext context, CardsPageViewModel viewModel, {StudyCard? existingCard}) {
+    final isEditing = existingCard != null;
+    final textController = TextEditingController(text: isEditing ? existingCard.text : '');
+    final tagsController = TextEditingController(text: isEditing ? existingCard.tags.join(', ') : '');
+    String? selectedSessionId = isEditing ? existingCard.sessionID : (viewModel.allSessions.isNotEmpty ? viewModel.allSessions.first.id : null);
+    showDialog(context: context, builder: (context) {
+      return StatefulBuilder(builder: (context, setDialogState) {
+        return AlertDialog(title: Text(isEditing ? '編輯卡片' : '新增卡片'), content: SingleChildScrollView(child: Column(mainAxisSize: MainAxisSize.min, children: [
+          if (!isEditing) DropdownButtonFormField<String>(
+            value: selectedSessionId,
+            items: viewModel.allSessions.map((Session session) => DropdownMenuItem<String>(value: session.id, child: Text(session.sessionName))).toList(),
+            onChanged: (String? newValue) => setDialogState(() => selectedSessionId = newValue),
+            decoration: const InputDecoration(labelText: '選擇 Session'),
+            validator: (value) => value == null ? '請選擇一個 Session' : null,
+          ),
+          TextField(controller: textController, decoration: const InputDecoration(labelText: '文字'), autofocus: true),
+          TextField(controller: tagsController, decoration: const InputDecoration(labelText: '標籤 (以逗號分隔)')),
+        ])), actions: [
+          TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('取消')),
+          ElevatedButton(onPressed: () {
+            final text = textController.text.trim();
+            if (text.isEmpty || selectedSessionId == null) return;
+            final tags = tagsController.text.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
+            if (isEditing) {
+              final updatedCard = existingCard.copyWith(text: text, tags: tags);
+              viewModel.updateCard(updatedCard);
+            } else {
+              viewModel.createCard(sessionId: selectedSessionId!, text: text, tags: tags);
+            }
+            Navigator.of(context).pop();
+          }, child: const Text('儲存')),
+        ]);
+      });
+    });
   }
 }
 

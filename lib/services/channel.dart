@@ -28,12 +28,3 @@ Future<bool> isScreenReaderEnabled() async {
     return false;
   }
 }
-
-Future<bool> isTalkBackEnabled() async {
-  try {
-    return await platform.invokeMethod('isTalkBackEnabled') ?? false;
-  } on PlatformException catch (e) {
-    developer.log("Failed to check TalkBack service: '${e.message}'.", name: 'ScreenReader');
-    return false;
-  }
-}

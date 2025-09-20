@@ -56,26 +56,6 @@ class MainActivity : FlutterActivity() {
         return false
     }
 
-    private fun isTalkBackEnabled(): Boolean { // 檢查TalkBack是否啟動
-        val talkBackService = "com.google.android.marvin.talkback/com.google.android.marvin.talkback.TalkBackService"
-        try {
-            val enabledServices = Settings.Secure.getString(contentResolver, Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES)
-            val colonSplitter = TextUtils.SimpleStringSplitter(':')
-            if (enabledServices != null) {
-                colonSplitter.setString(enabledServices)
-                while (colonSplitter.hasNext()) {
-                    val componentName = colonSplitter.next()
-                    if (componentName.equals(talkBackService, ignoreCase = true)) {
-                        return true
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("MainActivity", "Error checking TalkBack service", e)
-        }
-        return false
-    }
-
     override fun onCreate(savedInstanceState: Bundle?) { // 接收無障礙服務啟動的廣播 用來自動開啟 app
         super.onCreate(savedInstanceState)
         val enabledFilter = IntentFilter("com.example.foodie.ACCESSIBILITY_ENABLED")

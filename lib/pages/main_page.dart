@@ -7,10 +7,10 @@ class MainPage extends StatelessWidget {
   const MainPage({super.key, required this.child});
 
   static final _tabs = [
-    '/home',
+    '/upload',
     '/flashcard',
     '/history',
-    '/accessibility',
+    '/setting',
   ];
 
   @override

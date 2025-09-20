@@ -16,6 +16,8 @@ import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.KeyEvent
 import android.widget.FrameLayout
 import android.widget.Button
+import android.speech.tts.TextToSpeech
+import java.util.Locale
 
 class ScreenReader: AccessibilityService() { 
 
@@ -30,6 +32,7 @@ class ScreenReader: AccessibilityService() {
     private var windowManager: WindowManager? = null
     private var gestureDetector: GestureDetector? = null
     private var isOverlayVisible: Boolean = false
+    private var tts: TextToSpeech? = null
 
     private val gestureListener = object : SimpleOnGestureListener() {
         override fun onLongPress(e: MotionEvent) {
@@ -38,6 +41,13 @@ class ScreenReader: AccessibilityService() {
             Log.d("ScreenReaderService", "Long press detected at screen coordinates: x=$x, y=$y")
             findNodebyOffset(x, y)?.let { node ->
                 Log.d("ScreenReaderService", "Node found at long press location: class=${node.className} text=${node.text} desc=${node.contentDescription} clickable=${node.isClickable}")
+                if (node.text != null) {
+                    speak(node.text.toString())
+                } else if (node.contentDescription != null) {
+                    speak(node.contentDescription.toString().substringBefore('\n'))
+                } else {
+                    Log.d("ScreenReaderService", "Node has no text or content description")
+                }
             }
         }
         override fun onSingleTapUp(e: MotionEvent): Boolean {
@@ -56,6 +66,11 @@ class ScreenReader: AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        tts = TextToSpeech(this) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                tts?.language = Locale.TAIWAN
+            }
+        }
         val info = serviceInfo
         info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED or
                           AccessibilityEvent.TYPE_WINDOW_CONTENT_CHANGED
@@ -107,20 +122,30 @@ class ScreenReader: AccessibilityService() {
         }
     }
 
-    private fun findNodebyOffset(x: Int, y: Int): AccessibilityNodeInfo? { // 根據座標找 node
-
+    private fun findNodebyOffset(x: Int, y: Int): AccessibilityNodeInfo? { // 根據座標找範圍最小的 node
         val rootNode = rootInActiveWindow ?: return null
-        val currentNodes = NodeSet()
-        decodeTree(rootNode, currentNodes)
 
-        for (node in currentNodes.texts + currentNodes.images + currentNodes.tools) {
+        var bestNode: AccessibilityNodeInfo? = null
+        var minArea = Int.MAX_VALUE
+
+        fun search(node: AccessibilityNodeInfo?) {
+            if (node == null) return
             val rect = android.graphics.Rect()
             node.getBoundsInScreen(rect)
             if (rect.contains(x, y)) {
-                return node
+                val area = rect.width() * rect.height()
+                if (area < minArea && (node.text != null || node.contentDescription != null)) {
+                    minArea = area
+                    bestNode = node
+                }
+            }
+            for (i in 0 until node.childCount) {
+                search(node.getChild(i))
             }
         }
-        return null
+
+        search(rootNode)
+        return bestNode
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {
@@ -203,6 +228,16 @@ class ScreenReader: AccessibilityService() {
                 }
             }
         }
+    }
+
+    override fun onDestroy() {
+        tts?.stop()
+        tts?.shutdown()
+        super.onDestroy()
+    }
+
+    private fun speak(text: String) {
+        tts?.speak(text, TextToSpeech.QUEUE_FLUSH, null, null)
     }
 
     override fun onAccessibilityEvent(event: AccessibilityEvent?) {

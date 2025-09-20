@@ -1,13 +1,13 @@
-{"flutter":
-    {
-        "platforms":{
-            "android":{
-                "default":{
-                    "projectId":"foodie-4dee6",
-                    "appId":"1:346523381880:android:1db3a9c0da80f54643bd8d",
-                    "fileOutput":"android/app/google-services.json"
-                }
-            }
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "meichu-hackathon-c662e",
+          "appId": "1:653750943873:android:bf2f023bde547d4414cd80",
+          "fileOutput": "android/app/google-services.json"
         }
+      }
     }
+  }
 }

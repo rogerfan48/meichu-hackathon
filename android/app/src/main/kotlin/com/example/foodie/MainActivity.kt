@@ -1,4 +1,4 @@
-package com.example.foodie
+package com.example.lexiaid
 
 import io.flutter.embedding.android.FlutterActivity
 import io.flutter.embedding.engine.FlutterEngine
@@ -56,14 +56,14 @@ class MainActivity : FlutterActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) { // 接收無障礙服務啟動的廣播 用來自動開啟 app
         super.onCreate(savedInstanceState)
-        val enabledFilter = IntentFilter("com.example.foodie.ACCESSIBILITY_ENABLED")
+        val enabledFilter = IntentFilter("com.example.lexiaid.ACCESSIBILITY_ENABLED")
         registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 runTheApp()
             }
         }, enabledFilter, RECEIVER_EXPORTED)
 
-        val disabledFilter = IntentFilter("com.example.foodie.ACCESSIBILITY_DISABLED")
+        val disabledFilter = IntentFilter("com.example.lexiaid.ACCESSIBILITY_DISABLED")
         registerReceiver(object : BroadcastReceiver() {
             override fun onReceive(context: Context?, intent: Intent?) {
                 Log.d("MainActivity", "Accessibility Service Disabled. Finishing activity.")

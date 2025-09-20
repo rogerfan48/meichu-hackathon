@@ -41,7 +41,7 @@ interface Dish {
 // Helper function to get all dishes for a given restaurantID from Firestore
 async function getAllDishesForRestaurant(restaurantId: string): Promise<Dish[]> {
   console.log(`[identifyReceiptDishFlow] Fetching dishes for restaurant ID: ${restaurantId}`);
-  const menuRef = db.collection(`apps/foodie/restaurants/${restaurantId}/menu`);
+  const menuRef = db.collection(`apps/lexiaid/restaurants/${restaurantId}/menu`);
   const snapshot = await menuRef.get();
 
   if (snapshot.empty) {

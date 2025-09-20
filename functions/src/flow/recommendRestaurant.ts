@@ -1,4 +1,4 @@
-// filepath: c:\WorkspaceFlutter\foodie\functions\src\flow\recommendRestaurant.ts
+// filepath: c:\WorkspaceFlutter\lexiaid\functions\src\flow\recommendRestaurant.ts
 import { gemini25FlashPreview0417 } from "@genkit-ai/vertexai";
 import { ai } from "../config"; // Your Genkit AI configuration
 import { z } from "genkit";
@@ -49,9 +49,9 @@ const FlowOutputSchema = z.object({
 
 async function findAllReviews(): Promise<Review[]> {
     try {
-        // Assuming reviews are stored in a top-level collection: /apps/foodie/reviews
+        // Assuming reviews are stored in a top-level collection: /apps/lexiaid/reviews
         // Adjust if your structure is different (e.g., subcollections or collectionGroup)
-        const reviewsSnapshot = await db.collection('apps').doc('foodie').collection('reviews').get();
+        const reviewsSnapshot = await db.collection('apps').doc('lexiaid').collection('reviews').get();
         if (reviewsSnapshot.empty) {
             return [];
         }
@@ -101,7 +101,7 @@ function getBestImageForRestaurant(restaurantId: string, allReviews: Review[]): 
 // Helper function to fetch user's viewed restaurant IDs
 async function getUserViewedRestaurantIds(userId: string): Promise<string[]> {
     try {
-        const userDocRef = db.collection('apps').doc('foodie').collection('users').doc(userId);
+        const userDocRef = db.collection('apps').doc('lexiaid').collection('users').doc(userId);
         const userDoc = await userDocRef.get();
 
         if (userDoc.exists) {
@@ -153,7 +153,7 @@ async function getUserViewedRestaurantIds(userId: string): Promise<string[]> {
 // Helper function to find all restaurants with their dishes
 async function findAllRestaurants(): Promise<Restaurant[]> {
     try {
-        const restaurantsSnapshot = await db.collection('apps').doc('foodie').collection('restaurants').get();
+        const restaurantsSnapshot = await db.collection('apps').doc('lexiaid').collection('restaurants').get();
 
         if (restaurantsSnapshot.empty) {
             return [];
@@ -168,7 +168,7 @@ async function findAllRestaurants(): Promise<Restaurant[]> {
             // Fetch dishes for the current restaurant
             const dishesSnapshot = await db
                 .collection('apps')
-                .doc('foodie')
+                .doc('lexiaid')
                 .collection('restaurants')
                 .doc(restaurantId)
                 .collection('menu')
@@ -222,7 +222,7 @@ async function generateHistoryRestaurantNameForPrompt(
             // This case might happen if viewed IDs are stale and not in current allRestaurantsData
             historySummary = `User has recently viewed restaurants with IDs: ${viewedRestaurantIds.join(', ')} (names could not be found in current restaurant list).`;
         }
-    } else if ((await db.collection('apps').doc('foodie').collection('users').doc(userId).get()).exists) {
+    } else if ((await db.collection('apps').doc('lexiaid').collection('users').doc(userId).get()).exists) {
         historySummary = "User has no recorded viewing history.";
         console.warn(`User ${userId} has no viewedRestaurantIDs or document exists but no history.`);
     } else {
@@ -453,8 +453,8 @@ export const recommendRestaurantFlow = ai.defineFlow(
 
 // Further Advice (adapted):
 // 1.  **Firestore Data Structure:**
-///     *   `/apps/foodie/users/{userId}`: Document should contain a field `viewedRestaurantIDs` (e.g., `viewedRestaurantIDs: ["id1", "id2"]`).
-///     *   `/apps/foodie/restaurants/{restaurantId}`: Store comprehensive details.
+///     *   `/apps/lexiaid/users/{userId}`: Document should contain a field `viewedRestaurantIDs` (e.g., `viewedRestaurantIDs: ["id1", "id2"]`).
+///     *   `/apps/lexiaid/restaurants/{restaurantId}`: Store comprehensive details.
 /// 2.  **Prompt Engineering:** Crucial.
 ///     *   Refine `promptText` based on observed LLM behavior.
 ///     *   If the LLM struggles with the "RECOMMEND:" JSON or "ASK:" plain text format, provide few-shot examples in the prompt.
@@ -464,7 +464,7 @@ export const recommendRestaurantFlow = ai.defineFlow(
 ///     // ... inside history fetching try block
 ///     if (Array.isArray(viewedRestaurantIDs) && viewedRestaurantIDs.length > 0) {
 ///         const recentRestaurantDetailsPromises = viewedRestaurantIDs.slice(0, 3).map(id =>
-///             db.collection('apps').doc('foodie').collection('restaurants').doc(id).get()
+///             db.collection('apps').doc('lexiaid').collection('restaurants').doc(id).get()
 ///         );
 ///         const recentRestaurantSnapshots = await Promise.all(recentRestaurantDetailsPromises);
 ///         const details = recentRestaurantSnapshots
@@ -478,4 +478,4 @@ export const recommendRestaurantFlow = ai.defineFlow(
 ///     ```
 /// 4.  **Firestore Queries:** The query for recommendations is still basic. Expand it based on the criteria the LLM can provide.
 /// 5.  **Error Handling & Fallbacks:** The plain text fallbacks are in place. Consider more sophisticated recovery or guidance for the user.
-/// 6.  **Security Rules:** Ensure your Firestore security rules allow your Firebase Function to read `/apps/foodie/users/{userId}` and `/apps/foodie/restaurants/**`.
+/// 6.  **Security Rules:** Ensure your Firestore security rules allow your Firebase Function to read `/apps/lexiaid/users/{userId}` and `/apps/lexiaid/restaurants/**`.

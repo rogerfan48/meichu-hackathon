@@ -1,6 +1,6 @@
 {
-    "name": "foodie",
-    "short_name": "foodie",
+    "name": "lexiaid",
+    "short_name": "lexiaid",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

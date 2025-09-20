@@ -1,4 +1,4 @@
-name: "foodie"
+name: "lexiaid"
 description: "2025 Meichu Hackathon"
 # The following line prevents the package from being accidentally published to
 # pub.dev using `flutter pub publish`. This is preferred for private packages.
@@ -49,6 +49,7 @@ dependencies:
   url_launcher: ^6.2.1
   firebase_storage: ^12.4.6
   image_picker: ^1.1.2
+  file_picker: ^8.1.6
   intl: ^0.20.2
   uuid: ^4.5.1
   photo_view: ^0.15.0
@@ -65,6 +66,8 @@ dependencies:
   speech_to_text: ^7.3.0
   permission_handler: ^11.3.1
   path: ^1.9.1
+  card_swiper: ^3.0.1
+  timeago: ^3.7.1
 
 dev_dependencies:
   flutter_test:

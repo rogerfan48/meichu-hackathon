@@ -3,9 +3,9 @@ import { vertexAI } from '@genkit-ai/vertexai';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCTtxssYFoJ8otNLQdkkktQOlGqaxepmrU",
-  authDomain: "foodie-4dee6.firebaseapp.com",
-  projectId: "foodie-4dee6",
-  storageBucket: "foodie-4dee6.firebasestorage.app",
+  authDomain: "lexiaid-4dee6.firebaseapp.com",
+  projectId: "lexiaid-4dee6",
+  storageBucket: "lexiaid-4dee6.firebasestorage.app",
   messagingSenderId: "346523381880",
   appId: "1:346523381880:web:3205cd3d27cd436b43bd8d",
   measurementId: "G-X8QC682NEV"

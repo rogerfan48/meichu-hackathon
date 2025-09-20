@@ -154,7 +154,7 @@ async function findAllDishes(restaurantId: string): Promise<string[]> {
     try {
         const dishesSnapshot = await db
             .collection('apps')
-            .doc('foodie')
+            .doc('lexiaid')
             .collection('restaurants')
             .doc(restaurantId)
             .collection('menu')

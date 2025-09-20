@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:foodie/theme/text.dart';
+import 'package:lexiaid/theme/text.dart';
 
 class MaterialTheme {
   const MaterialTheme();

@@ -1,4 +1,4 @@
-package com.example.foodie
+package com.example.lexiaid
 
 import android.accessibilityservice.AccessibilityService
 import android.view.accessibility.AccessibilityEvent
@@ -70,7 +70,7 @@ class ScreenReader: AccessibilityService() {
         gestureDetector = GestureDetector(this, gestureListener)
 
         Log.d("ScreenReaderService", "Accessibility Service Connected")
-        val intent = Intent("com.example.foodie.ACCESSIBILITY_ENABLED")
+        val intent = Intent("com.example.lexiaid.ACCESSIBILITY_ENABLED")
         intent.setPackage(packageName)
         sendBroadcast(intent)
     }

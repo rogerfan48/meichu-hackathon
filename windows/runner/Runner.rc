@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "com.example" "\0"
-            VALUE "FileDescription", "foodie" "\0"
+            VALUE "FileDescription", "lexiaid" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "foodie" "\0"
+            VALUE "InternalName", "lexiaid" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2025 com.example. All rights reserved." "\0"
-            VALUE "OriginalFilename", "foodie.exe" "\0"
-            VALUE "ProductName", "foodie" "\0"
+            VALUE "OriginalFilename", "lexiaid.exe" "\0"
+            VALUE "ProductName", "lexiaid" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END

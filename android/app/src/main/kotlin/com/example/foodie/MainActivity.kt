@@ -28,8 +28,6 @@ class MainActivity : FlutterActivity() {
                 result.success(true)
             } else if (call.method == "isScreenReaderEnabled") {
                 result.success(isScreenReaderEnabled())
-            } else if (call.method == "isTalkBackEnabled") {
-                result.success(isTalkBackEnabled())
             } else {
                 result.notImplemented()
             }

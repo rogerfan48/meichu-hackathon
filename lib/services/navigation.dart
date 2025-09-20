@@ -3,12 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:foodie/pages/loading_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:foodie/pages/main_page.dart';
-import 'package:foodie/pages/home_page.dart';
-import 'package:foodie/pages/flashcard/flashcard_page.dart';
-import 'package:foodie/pages/flashcard/flashcard_practice_page.dart';
-import 'package:foodie/pages/screenReader/accessibility_page.dart';
-import 'package:foodie/pages/upload_page.dart';
 import 'package:foodie/pages/flashcard_page.dart';
+import 'package:foodie/pages/flashcard_practice_page.dart';
+import 'package:foodie/pages/upload_page.dart';
 import 'package:foodie/pages/setting_page.dart';
 import 'package:foodie/pages/history_page.dart';
 

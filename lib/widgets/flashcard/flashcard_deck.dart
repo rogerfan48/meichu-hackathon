@@ -1,4 +1,4 @@
-import 'package:card_swiper/card_swiper.dart';
+import 'package:flutter_card_swiper/flutter_card_swiper.dart';
 import 'package:flutter/material.dart';
 
 import 'flash_card.dart';
@@ -20,6 +20,7 @@ class FlashcardDeck extends StatefulWidget {
   final ValueChanged<int>? onIndexChanged;
   final VoidCallback? onThumbUpGesture;
   final VoidCallback? onThumbDownGesture;
+  final VoidCallback? onEnd;
 
   const FlashcardDeck({
     super.key,
@@ -29,6 +30,7 @@ class FlashcardDeck extends StatefulWidget {
     this.onIndexChanged,
     this.onThumbUpGesture,
     this.onThumbDownGesture,
+    this.onEnd,
   });
 
   @override
@@ -36,13 +38,13 @@ class FlashcardDeck extends StatefulWidget {
 }
 
 class _FlashcardDeckState extends State<FlashcardDeck> {
-  final SwiperController _swiperController = SwiperController();
+  final CardSwiperController _swiperController = CardSwiperController();
 
   // Swipe state
   double _dragDx = 0.0;
   bool _gestureConsumed = false;
   int _currentIndex = 0;
-  AxisDirection _axisDirection = AxisDirection.left; // default left
+  AxisDirection _axisDirection = AxisDirection.down; // default drop down
 
   @override
   void initState() {
@@ -59,30 +61,12 @@ class _FlashcardDeckState extends State<FlashcardDeck> {
 
   void _handleThumbUp() {
     widget.onThumbUpGesture?.call();
-    if (_currentIndex >= widget.cardTexts.length - 1) {
-      setState(() {
-        _axisDirection = AxisDirection.right;
-      });
-      return;
-    }
-    setState(() {
-      _axisDirection = AxisDirection.right;
-    });
-    _swiperController.next();
+    _swiperController.swipe(CardSwiperDirection.right);
   }
 
   void _handleThumbDown() {
     widget.onThumbDownGesture?.call();
-    if (_currentIndex >= widget.cardTexts.length - 1) {
-      setState(() {
-        _axisDirection = AxisDirection.left;
-      });
-      return;
-    }
-    setState(() {
-      _axisDirection = AxisDirection.left;
-    });
-    _swiperController.next();
+    _swiperController.swipe(CardSwiperDirection.left);
   }
 
   @override
@@ -109,22 +93,29 @@ class _FlashcardDeckState extends State<FlashcardDeck> {
         _dragDx = 0.0;
         _gestureConsumed = false;
       },
-      child: Swiper(
+      child: CardSwiper(
         controller: _swiperController,
-        itemCount: widget.cardTexts.length,
-        itemBuilder: (context, index) {
-          return FlashCard(text: widget.cardTexts[index]);
+        cardsCount: widget.cardTexts.length,
+        numberOfCardsDisplayed: 3,
+        isLoop: false,
+        padding: EdgeInsets.zero,
+        cardBuilder: (context, index, percentThresholdX, percentThresholdY) {
+          return Center(
+            child: SizedBox(
+              width: widget.itemWidth == 500.0
+                  ? MediaQuery.of(context).size.width * 0.85
+                  : widget.itemWidth,
+              height: MediaQuery.of(context).size.height * 0.6,
+              child: FlashCard(text: widget.cardTexts[index]),
+            ),
+          );
         },
-        physics: const NeverScrollableScrollPhysics(),
-        allowImplicitScrolling: false,
-        layout: SwiperLayout.STACK,
-        axisDirection: _axisDirection,
-        itemWidth: widget.itemWidth,
-        loop: false,
-        onIndexChanged: (i) {
-          _currentIndex = i;
-          widget.onIndexChanged?.call(i);
+        onSwipe: (int previousIndex, int? currentIndex, CardSwiperDirection direction) {
+          _currentIndex = previousIndex + 1;
+          widget.onIndexChanged?.call(_currentIndex);
+          return true;
         },
+        onEnd: widget.onEnd,
       ),
     );
   }

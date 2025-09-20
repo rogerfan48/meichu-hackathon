@@ -61,7 +61,7 @@ dependencies:
   model_viewer_plus: ^1.7.0
   google_generative_ai: ^0.4.3
   flip_card: ^0.7.0
-  card_swiper: ^3.0.0
+  flutter_card_swiper: ^7.0.2
 
 dev_dependencies:
   flutter_test:

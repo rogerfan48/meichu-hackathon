@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'package:foodie/widgets/flashcard/thumb_button.dart';
 import 'package:foodie/widgets/flashcard/flashcard_deck.dart';
@@ -46,6 +47,9 @@ class _FlashcardPracticePageState extends State<FlashcardPracticePage> {
               },
               onThumbDownGesture: () {
                 _thumbDownKey.currentState?.playAnimation();
+              },
+              onEnd: () {
+                context.pop();
               },
             ),
           ),

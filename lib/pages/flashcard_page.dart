@@ -23,11 +23,11 @@ class _FlashcardPageState extends State<FlashcardPage> {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 AnimatedRoundButton(
-                  label: 'Listen',
+                  label: 'Review',
                   color: Theme.of(context).colorScheme.secondaryContainer,
                   textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                   onPressed: () {
-                    context.go('/flashcard/practice');
+                    context.go('/flashcard/review');
                   },
                 ),
                 AnimatedRoundButton(
@@ -35,7 +35,7 @@ class _FlashcardPageState extends State<FlashcardPage> {
                   color: Theme.of(context).colorScheme.secondaryContainer,
                   textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                   onPressed: () {
-                    context.go('/flashcard/practice');
+                    context.go('/flashcard/review');
                   },
                 ),
               ],

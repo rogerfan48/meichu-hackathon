@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:go_router/go_router.dart';
-
-import 'package:foodie/widgets/flashcard/thumb_button.dart';
 import 'package:foodie/widgets/flashcard/flashcard_deck.dart';
+import 'package:foodie/widgets/flashcard/round_button.dart';
 
 class FlashcardPracticePage extends StatefulWidget {
   const FlashcardPracticePage({super.key});
@@ -13,9 +11,9 @@ class FlashcardPracticePage extends StatefulWidget {
 
 class _FlashcardPracticePageState extends State<FlashcardPracticePage> {
   final FlashcardDeckController _deckController = FlashcardDeckController();
-  final List<String> _cardTexts = const ['蘋果', 'Banana', 'Orange'];
-  final GlobalKey<AnimatedThumbButtonState> _thumbUpKey = GlobalKey();
-  final GlobalKey<AnimatedThumbButtonState> _thumbDownKey = GlobalKey();
+  final List<String> _cardTexts = const ['蘋果', 'Banana', 'Orange', 'Strawberry'];
+  int _currentIndex = 0;
+  bool _isRecording = false;
 
   @override
   void dispose() {
@@ -23,16 +21,23 @@ class _FlashcardPracticePageState extends State<FlashcardPracticePage> {
     super.dispose();
   }
 
-  void _thumbUp() {
-    _deckController.thumbUp();
+  void _onIndexChanged(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
   }
 
-  void _thumbDown() {
-    _deckController.thumbDown();
+  void _toggleRecording() {
+    setState(() {
+      _isRecording = !_isRecording;
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final colorScheme = theme.colorScheme;
+
     return Scaffold(
       appBar: AppBar(title: const Text('Flashcard Practice')),
       body: Column(
@@ -41,34 +46,29 @@ class _FlashcardPracticePageState extends State<FlashcardPracticePage> {
             child: FlashcardDeck(
               controller: _deckController,
               cardTexts: _cardTexts,
-              itemWidth: 500.0,
-              onThumbUpGesture: () {
-                _thumbUpKey.currentState?.playAnimation();
-              },
-              onThumbDownGesture: () {
-                _thumbDownKey.currentState?.playAnimation();
-              },
-              onEnd: () {
-                context.pop();
-              },
+              onIndexChanged: _onIndexChanged,
             ),
           ),
           Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(24.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                AnimatedThumbButton(
-                  key: _thumbDownKey,
-                  icon: Icons.thumb_down,
-                  color: Colors.red,
-                  onPressed: _thumbDown,
+                AnimatedRoundButton(
+                  icon: Icons.chevron_left,
+                  color: colorScheme.secondaryContainer,
+                  onPressed: _currentIndex > 0 ? () => _deckController.thumbDown() : null,
                 ),
-                AnimatedThumbButton(
-                  key: _thumbUpKey,
-                  icon: Icons.thumb_up,
-                  color: Colors.green,
-                  onPressed: _thumbUp,
+                AnimatedRoundButton(
+                  icon: _isRecording ? Icons.mic_off : Icons.mic,
+                  color: _isRecording ? Colors.red : colorScheme.primary,
+                  textColor: _isRecording ? Colors.white : colorScheme.onPrimary,
+                  onPressed: _toggleRecording,
+                ),
+                AnimatedRoundButton(
+                  icon: Icons.chevron_right,
+                  color: colorScheme.secondaryContainer,
+                  onPressed: _currentIndex < _cardTexts.length -1 ? () => _deckController.thumbUp() : null,
                 ),
               ],
             ),
@@ -78,5 +78,3 @@ class _FlashcardPracticePageState extends State<FlashcardPracticePage> {
     );
   }
 }
-
-

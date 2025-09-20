@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:speech_to_text/speech_to_text.dart' as stt;
-
+import 'package:permission_handler/permission_handler.dart';
 import 'package:foodie/widgets/flashcard/icon_button.dart';
 
 class FlashcardPracticePage extends StatefulWidget {
@@ -19,7 +19,20 @@ class _FlashcardPracticePageState extends State<FlashcardPracticePage> with Tick
   @override
   void initState() {
     super.initState();
+    _requestMicPermission();
     _initSpeech();
+  }
+
+  Future<void> _requestMicPermission() async {
+    var status = await Permission.microphone.request();
+    if (!status.isGranted && mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('請開啟麥克風權限才能使用語音辨識'),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
   }
 
   void _initSpeech() async {
@@ -70,7 +83,6 @@ class _FlashcardPracticePageState extends State<FlashcardPracticePage> with Tick
     setState(() {
       _recognizedWords = '';
     });
-
     await _speech.listen(
       onResult: (result) {
         setState(() {

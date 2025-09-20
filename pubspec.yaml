@@ -63,6 +63,7 @@ dependencies:
   google_generative_ai: ^0.4.3
   flip_card: ^0.7.0
   card_swiper: ^3.0.0
+  timeago: ^3.7.1
 
 dev_dependencies:
   flutter_test:

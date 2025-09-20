@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../models/card_model.dart';
 import '../models/session_model.dart';
 import '../repositories/card_repository.dart';
 import '../repositories/session_repository.dart';
 import '../view_models/account_vm.dart';
 import '../view_models/session_detail_view_model.dart';
-import '../widgets/firebase_image.dart'; // ** 引入新 Widget **
+import '../widgets/firebase_image.dart';
+import '../widgets/shared/study_card_tile.dart'; // ** 引入新的共用 Widget **
 
 class SessionDetailPage extends StatelessWidget {
   final String sessionId;
@@ -66,12 +66,9 @@ class SessionDetailPage extends StatelessWidget {
                 subtitle: Text(file.fileURL, overflow: TextOverflow.ellipsis),
               ),
             )),
-            
             const SizedBox(height: 24),
             _buildSectionHeader("Image Explanations (${session.imgExplanations.length})", null),
             const SizedBox(height: 8),
-            // ** 關鍵修改 **
-            // 使用我們新的 FirebaseImage Widget
             ...session.imgExplanations.values.map((imgExp) => Card(
               clipBehavior: Clip.antiAlias,
               child: Column(
@@ -82,7 +79,7 @@ class SessionDetailPage extends StatelessWidget {
                     fit: BoxFit.cover,
                     width: double.infinity,
                     height: 180,
-                    errorWidget: Container( // 提供一個自訂的錯誤 Widget
+                    errorWidget: Container(
                       height: 180,
                       color: Colors.grey[200],
                       child: const Center(child: Icon(Icons.broken_image, color: Colors.grey, size: 48)),
@@ -96,16 +93,14 @@ class SessionDetailPage extends StatelessWidget {
                 ],
               ),
             )),
-            
             const SizedBox(height: 24),
             _buildSectionHeader("Cards (${viewModel.cards.length})", null),
             const SizedBox(height: 8),
-            ...viewModel.cards.map((card) => Card(
-              child: ListTile(
-                title: Text(card.text),
-                subtitle: Text("Likes: ${card.goodCount}, Dislikes: ${card.badCount}"),
-              ),
-            )),
+            // ** 關鍵修改：使用 StudyCardTile 來顯示卡片列表 **
+            ...viewModel.cards.map((card) {
+              // 在這個頁面，我們不提供刪除或編輯功能，所以不傳遞回調
+              return StudyCardTile(card: card);
+            }),
           ],
         );
     }

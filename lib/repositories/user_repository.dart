@@ -10,7 +10,6 @@ class UserRepository {
   DocumentReference<Map<String, dynamic>> _userRef(String uid) =>
       _firestore.doc(FirestorePaths.userDoc(uid));
 
-  // Watch user profile data
   Stream<UserProfile?> watchUserProfile(String uid) {
     return _userRef(uid).snapshots().map((snap) {
       if (!snap.exists || snap.data() == null) return null;
@@ -18,7 +17,6 @@ class UserRepository {
     });
   }
 
-  // Create user from Firebase Auth User
   Future<void> createUser(User user) async {
     final userProfile = UserProfile(
       uid: user.uid,
@@ -28,7 +26,6 @@ class UserRepository {
     await _userRef(user.uid).set(userProfile.toJson());
   }
 
-  // Update user profile when auth details change
   Future<void> updateUserProfileFromAuth(String uid, String userName, String? photoURL) async {
     await _userRef(uid).update({
       'userName': userName,
@@ -36,12 +33,10 @@ class UserRepository {
     });
   }
   
-  // Get user document snapshot (for auth_service existence check)
   Future<DocumentSnapshot<Map<String, dynamic>>> getUser(String uid) async {
     return await _userRef(uid).get();
   }
 
-  // Update a single field, like speech rate
   Future<void> updateDefaultSpeechRate(String uid, double rate) async {
     await _userRef(uid).update({'defaultSpeechRate': rate});
   }

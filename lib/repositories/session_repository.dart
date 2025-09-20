@@ -38,6 +38,10 @@ class SessionRepository {
     await _sessionsCollection(uid).doc(sessionId).delete();
   }
 
+  Future<void> updateSessionName(String uid, String sessionId, String newName) async {
+    await _sessionsCollection(uid).doc(sessionId).update({'sessionName': newName});
+  }
+
   Future<void> addFileResource(String uid, String sessionId, FileResource fr) async {
     await _sessionsCollection(uid).doc(sessionId).update({
       'fileResources.${fr.id}': fr.toJson(),
@@ -56,9 +60,5 @@ class SessionRepository {
 
   Future<void> updateSummary(String uid, String sessionId, String summary) async {
     await _sessionsCollection(uid).doc(sessionId).update({'summary': summary});
-  }
-  
-  Future<void> updateSessionName(String uid, String sessionId, String newName) async {
-    await _sessionsCollection(uid).doc(sessionId).update({'sessionName': newName});
   }
 }

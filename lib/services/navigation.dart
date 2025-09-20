@@ -13,7 +13,6 @@ final routerConfig = GoRouter(
   routes: [
     GoRoute(
       path: '/loading',
-      // Loading Page 也不需要動畫
       pageBuilder: (context, state) => const NoTransitionPage(
         child: LoadingPage(),
       ),
@@ -41,7 +40,6 @@ final routerConfig = GoRouter(
           routes: [
             GoRoute(
               path: ':sessionId',
-              // 詳細頁面可以保留預設動畫，感覺更自然
               builder: (context, state) {
                 final sessionId = state.pathParameters['sessionId']!;
                 return SessionDetailPage(sessionId: sessionId);

@@ -3,7 +3,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 class UserProfile {
   final String uid;
   final String userName;
-  final String? photoURL; // Added photoURL
+  final String? photoURL;
   final double defaultSpeechRate;
 
   const UserProfile({

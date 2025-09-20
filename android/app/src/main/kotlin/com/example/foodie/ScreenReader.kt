@@ -14,6 +14,8 @@ import android.graphics.PixelFormat
 import android.view.Gravity
 import android.view.GestureDetector.SimpleOnGestureListener
 import android.view.KeyEvent
+import android.widget.FrameLayout
+import android.widget.Button
 
 class ScreenReader: AccessibilityService() { 
 
@@ -142,7 +144,32 @@ class ScreenReader: AccessibilityService() {
         isOverlayVisible = isVisible
         if (isVisible) {
             if (overlayView == null && windowManager != null) {
-                overlayView = View(this)
+                val frameLayout = FrameLayout(this)
+                overlayView = frameLayout
+
+                val button = Button(this)
+                button.text = "X"
+                button.setOnClickListener {
+                    setOverlayVisible(false)
+                }
+                // 設定圓形背景
+                button.background = resources.getDrawable(android.R.drawable.btn_default, null)
+                button.width = 150
+                button.height = 150
+
+                // 使用圓形 shape drawable
+                val shape = android.graphics.drawable.GradientDrawable()
+                shape.shape = android.graphics.drawable.GradientDrawable.OVAL
+                shape.setColor(0xFF2196F3.toInt()) // 藍色
+                button.background = shape
+
+                // 設定按鈕位置和大小
+                val btnParams = FrameLayout.LayoutParams(150, 150)
+                btnParams.gravity = Gravity.BOTTOM or Gravity.END
+                btnParams.bottomMargin = 120
+                btnParams.rightMargin = 60
+                frameLayout.addView(button, btnParams)
+
                 val layoutParams = WindowManager.LayoutParams(
                     WindowManager.LayoutParams.MATCH_PARENT,
                     WindowManager.LayoutParams.MATCH_PARENT,

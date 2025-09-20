@@ -1,21 +1,21 @@
 import 'package:flutter/material.dart';
-import 'package:foodie/pages/screenReader/channel.dart';
+import 'package:foodie/services/channel.dart';
 
-class AccessibilityPage extends StatefulWidget {
-  const AccessibilityPage({super.key});
+class SettingPage extends StatefulWidget {
+  const SettingPage({super.key});
 
   @override
-  State<AccessibilityPage> createState() => _AccessibilityPageState();
+  State<SettingPage> createState() => _SettingPageState();
 }
 
-class _AccessibilityPageState extends State<AccessibilityPage> {
+class _SettingPageState extends State<SettingPage> {
   bool _isFeatureOn = false;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Accessibility Page'),
+        title: Text('Settings'),
       ),
       body: Center(
         child: ListView(

@@ -4,8 +4,6 @@ import 'package:flutter/material.dart';
 import 'package:foodie/widgets/flashcard/thumb_button.dart';
 import 'package:foodie/widgets/flashcard/flash_card.dart';
 
-import '../../api_key.dart';
-
 class FlashcardPage extends StatefulWidget {
   const FlashcardPage({super.key});
 

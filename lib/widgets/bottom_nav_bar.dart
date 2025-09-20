@@ -14,10 +14,10 @@ class BottomNavBar extends StatelessWidget {
       onTap: onTap,
       type: BottomNavigationBarType.fixed,
       items: const [
-        BottomNavigationBarItem(icon: Icon(Icons.home), label: "Home"),
+        BottomNavigationBarItem(icon: Icon(Icons.upload), label: "Upload"),
         BottomNavigationBarItem(icon: Icon(Icons.style), label: "Flashcard"),
         BottomNavigationBarItem(icon: Icon(Icons.history), label: "History"),
-        BottomNavigationBarItem(icon: Icon(Icons.accessibility), label: "Accessibility"),
+        BottomNavigationBarItem(icon: Icon(Icons.settings), label: "Settings"),
       ],
     );
   }

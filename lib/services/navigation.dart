@@ -3,9 +3,9 @@ import 'package:flutter/material.dart';
 import 'package:foodie/pages/loading_page.dart';
 import 'package:go_router/go_router.dart';
 import 'package:foodie/pages/main_page.dart';
-import 'package:foodie/pages/home_page.dart';
-import 'package:foodie/pages/flashcard/flashcard_page.dart';
-import 'package:foodie/pages/screenReader/accessibility_page.dart';
+import 'package:foodie/pages/upload_page.dart';
+import 'package:foodie/pages/flashcard_page.dart';
+import 'package:foodie/pages/setting_page.dart';
 import 'package:foodie/pages/history_page.dart';
 
 final routerConfig = GoRouter(
@@ -19,8 +19,8 @@ final routerConfig = GoRouter(
       builder: (context, state, child) => MainPage(child: child), // 傳入 tab page
       routes: [
         GoRoute(
-          path: '/home',
-          pageBuilder: (context, state) => const NoTransitionPage(child: HomePage()),
+          path: '/upload',
+          pageBuilder: (context, state) => const NoTransitionPage(child: UploadPage()),
         ),
         GoRoute(
           path: '/flashcard',
@@ -31,15 +31,15 @@ final routerConfig = GoRouter(
           pageBuilder: (context, state) => const NoTransitionPage(child: HistoryPage()),
         ),
         GoRoute(
-          path: '/accessibility',
-          pageBuilder: (context, state) => NoTransitionPage(child: AccessibilityPage()),
+          path: '/setting',
+          pageBuilder: (context, state) => NoTransitionPage(child: SettingPage()),
         ),
       ],
     ),
   ],
   redirect: (context, state) {
     final currentPath = state.uri.path;
-    if (currentPath == '/') return '/home';
+    if (currentPath == '/') return '/upload';
     return null;
   },
   errorBuilder:

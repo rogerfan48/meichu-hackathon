@@ -24,7 +24,7 @@ class LoadingPage extends StatelessWidget {
                   return LinearProgressIndicator(value: value);
                 },
                 onEnd: () {
-                  context.go('/home');
+                  context.go('/upload');
                 },
               ),
             ),

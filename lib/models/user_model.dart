@@ -1,35 +1,61 @@
-class UserModel {
-  String? uid; // Google Auth UID
+class UserProfile {
+  final String uid;
   final String userName;
-  final String? photoURL;
-  final Map<String, List<String>> viewedRestaurantIDs; // (ID, [viewDate])
-  final List<String> userReviewIDs;
+  final double defaultSpeechRate;
 
-  UserModel({
+  const UserProfile({
+    required this.uid,
     required this.userName,
-    this.photoURL,
-    Map<String, List<String>>? viewedRestaurantIDs,
-    List<String>? userReviewIDs,
-  })  : viewedRestaurantIDs = viewedRestaurantIDs ?? {},
-        userReviewIDs     = userReviewIDs     ?? [];
+    this.defaultSpeechRate = 1.0,
+  });
 
-  factory UserModel.fromMap(Map<String, dynamic> map) {
-    final rawMap = map['viewedRestaurantIDs'] as Map<String, dynamic>? ?? {};
-    final viewedMap = <String, List<String>>{};
-    rawMap.forEach((key, value) {
-      if (value is String) {
-        // migrate old single‐string date to a one‐element list
-        viewedMap[key] = [value];
-      } else if (value is List) {
-        viewedMap[key] = List<String>.from(value);
-      }
-    });
-    return UserModel(
-      userName: map['userName'] as String,
-      photoURL: map['photoURL'] as String?,
-      viewedRestaurantIDs: viewedMap,
-      userReviewIDs: List<String>.from(map['userReviewIDs'] ?? []),
+  // Copy with method
+  UserProfile copyWith({
+    String? uid,
+    String? userName,
+    double? defaultSpeechRate,
+  }) {
+    return UserProfile(
+      uid: uid ?? this.uid,
+      userName: userName ?? this.userName,
+      defaultSpeechRate: defaultSpeechRate ?? this.defaultSpeechRate,
     );
   }
-}
 
+  // JSON serialization
+  Map<String, dynamic> toJson() {
+    return {
+      'uid': uid,
+      'userName': userName,
+      'defaultSpeechRate': defaultSpeechRate,
+    };
+  }
+
+  factory UserProfile.fromJson(Map<String, dynamic> json) {
+    return UserProfile(
+      uid: json['uid'] as String,
+      userName: json['userName'] as String,
+      defaultSpeechRate: (json['defaultSpeechRate'] as num?)?.toDouble() ?? 1.0,
+    );
+  }
+
+  // Equality and hash code
+  @override
+  bool operator ==(Object other) {
+    if (identical(this, other)) return true;
+    return other is UserProfile &&
+        other.uid == uid &&
+        other.userName == userName &&
+        other.defaultSpeechRate == defaultSpeechRate;
+  }
+
+  @override
+  int get hashCode {
+    return Object.hash(uid, userName, defaultSpeechRate);
+  }
+
+  @override
+  String toString() {
+    return 'UserProfile(uid: $uid, userName: $userName, defaultSpeechRate: $defaultSpeechRate)';
+  }
+}

@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'package:cloud_firestore/cloud_firestore.dart'; // 引入 Firestore
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:image_picker/image_picker.dart';
@@ -68,6 +68,21 @@ class UploadPageViewModel extends ChangeNotifier {
     }
   }
 
+  // ** 新增方法 **
+  Future<void> pickFromGallery() async {
+    try {
+      // image_picker 也可以用來選擇多張圖片
+      final List<XFile> images = await ImagePicker().pickMultiImage();
+      if (images.isNotEmpty) {
+        _selectedFiles.addAll(images.map((image) => File(image.path)));
+        _setState(UploadPageState.filesSelected);
+      }
+    } catch (e) {
+      _errorMessage = '無法從相簿選擇: $e';
+      _setState(UploadPageState.error);
+    }
+  }
+
   void removeFile(int index) {
     if (index >= 0 && index < _selectedFiles.length) {
       _selectedFiles.removeAt(index);
@@ -100,7 +115,7 @@ class UploadPageViewModel extends ChangeNotifier {
         id: sessionId,
         sessionName: sessionName,
         status: 'uploading',
-        createdAt: Timestamp.now(), // ** 關鍵修改 **
+        createdAt: Timestamp.now(),
       );
       await sessionRepository.upsertSession(userId, initialSession);
 
@@ -111,8 +126,8 @@ class UploadPageViewModel extends ChangeNotifier {
         _statusMessage = '正在上傳檔案 ${i + 1}/$totalFiles: $fileName';
         _uploadProgress = (i / totalFiles);
         notifyListeners();
-        final downloadUrl = await storageService.uploadFile(userId: userId, sessionId: sessionId, file: file);
-        final fileResource = FileResource(id: fileName, fileURL: downloadUrl);
+        final gsUrl = await storageService.uploadFile(userId: userId, sessionId: sessionId, file: file);
+        final fileResource = FileResource(id: fileName, fileURL: gsUrl);
         await sessionRepository.addFileResource(userId, sessionId, fileResource);
       }
       

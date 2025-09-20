@@ -30,7 +30,7 @@ class SessionsPageViewModel extends ChangeNotifier {
     _sub?.cancel();
     _sub = sessionRepository.watchAllSessions(userId).listen(
       (sessions) {
-        _sessions = sessions; // The query is already ordered
+        _sessions = sessions;
         _state = SessionsPageState.idle;
         notifyListeners();
       },
@@ -48,6 +48,17 @@ class SessionsPageViewModel extends ChangeNotifier {
     } catch (e) {
       if (kDebugMode) {
         print("刪除 Session 失敗: $e");
+      }
+    }
+  }
+
+  Future<void> renameSession(String sessionId, String newName) async {
+    if (newName.trim().isEmpty) return;
+    try {
+      await sessionRepository.updateSessionName(userId, sessionId, newName.trim());
+    } catch (e) {
+      if (kDebugMode) {
+        print("重新命名 Session 失敗: $e");
       }
     }
   }

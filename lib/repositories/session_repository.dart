@@ -21,7 +21,6 @@ class SessionRepository {
       var sessions = snapshot.docs
           .map((doc) => Session.fromFirestore(doc.data(), doc.id))
           .toList();
-      // 在客戶端進行排序，以 createdAt 欄位為準，如果為 null 則使用 id
       sessions.sort((a, b) {
         final dateA = a.createdAt?.toDate() ?? DateTime.fromMillisecondsSinceEpoch(int.tryParse(a.id) ?? 0);
         final dateB = b.createdAt?.toDate() ?? DateTime.fromMillisecondsSinceEpoch(int.tryParse(b.id) ?? 0);
@@ -57,5 +56,9 @@ class SessionRepository {
 
   Future<void> updateSummary(String uid, String sessionId, String summary) async {
     await _sessionsCollection(uid).doc(sessionId).update({'summary': summary});
+  }
+  
+  Future<void> updateSessionName(String uid, String sessionId, String newName) async {
+    await _sessionsCollection(uid).doc(sessionId).update({'sessionName': newName});
   }
 }

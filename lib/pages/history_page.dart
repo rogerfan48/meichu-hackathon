@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../view_models/sessions_page_view_model.dart';
 import '../models/session_model.dart';
 import '../view_models/account_vm.dart';
-import 'package:intl/intl.dart'; // 引入日期格式化工具
+import 'package:intl/intl.dart';
 
 class HistoryPage extends StatelessWidget {
   const HistoryPage({super.key});
@@ -34,13 +34,6 @@ class HistoryPage extends StatelessWidget {
           appBar: AppBar(
             title: const Text('上傳紀錄'),
             automaticallyImplyLeading: false,
-            actions: [
-              IconButton(
-                icon: const Icon(Icons.refresh),
-                onPressed: () {},
-                tooltip: '刷新',
-              ),
-            ],
           ),
           body: _buildBody(context, viewModel),
         );
@@ -89,43 +82,31 @@ class HistoryPage extends StatelessWidget {
   }
 
   Widget _buildSessionCard(BuildContext context, Session session, SessionsPageViewModel viewModel) {
-    // ** 關鍵修改 **
-    // 使用 createdAt 欄位，並提供一個 fallback 以相容舊資料
     final createdAt = session.createdAt?.toDate() ?? DateTime.now();
     final createdAtString = DateFormat('yyyy/MM/dd HH:mm').format(createdAt);
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
-        contentPadding: const EdgeInsets.all(16),
+        contentPadding: const EdgeInsets.fromLTRB(16, 12, 8, 12),
         title: Text(
           session.sessionName.isEmpty ? 'Session ${session.id}' : session.sessionName,
-          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 17),
         ),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 8),
-            Text('建立於: $createdAtString'),
-            const SizedBox(height: 4),
-            Text('包含 ${session.fileResources.length} 個檔案, ${session.cardIDs.length} 張卡片'),
-            if (session.summary != null && session.summary!.isNotEmpty) ...[
-              const SizedBox(height: 8),
-              Text(
-                '總結: ${session.summary!}',
-                maxLines: 2,
-                overflow: TextOverflow.ellipsis,
-                style: TextStyle(color: Colors.grey[600]),
-              ),
+        subtitle: Padding(
+          padding: const EdgeInsets.only(top: 8.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              _buildInfoRow(Icons.calendar_today_outlined, createdAtString),
+              const SizedBox(height: 6),
+              _buildInfoRow(Icons.folder_open_outlined, '${session.fileResources.length} 個檔案, ${session.cardIDs.length} 張卡片'),
+              if (session.summary != null && session.summary!.isNotEmpty) ...[
+                const SizedBox(height: 6),
+                _buildInfoRow(Icons.article_outlined, session.summary!, maxLines: 2),
+              ],
             ],
-            const SizedBox(height: 4),
-            Chip(
-              label: Text(session.status),
-              backgroundColor: _getStatusColor(session.status),
-              labelStyle: const TextStyle(color: Colors.white, fontSize: 10),
-              padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 0),
-            )
-          ],
+          ),
         ),
         trailing: PopupMenuButton<String>(
           onSelected: (value) {
@@ -147,16 +128,24 @@ class HistoryPage extends StatelessWidget {
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case 'uploading': return Colors.blue;
-      case 'processing': return Colors.orange;
-      case 'completed': return Colors.green;
-      case 'failed': return Colors.red;
-      default: return Colors.grey;
-    }
+  Widget _buildInfoRow(IconData icon, String text, {int maxLines = 1}) {
+    return Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Icon(icon, size: 14, color: Colors.grey[600]),
+        const SizedBox(width: 8),
+        Expanded(
+          child: Text(
+            text,
+            style: TextStyle(color: Colors.grey[700], fontSize: 13),
+            maxLines: maxLines,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
+    );
   }
-
+  
   void _showDeleteConfirmationDialog(BuildContext context, Session session, SessionsPageViewModel viewModel) {
     showDialog(
       context: context,
@@ -179,8 +168,31 @@ class HistoryPage extends StatelessWidget {
   }
 
   void _showRenameDialog(BuildContext context, Session session, SessionsPageViewModel viewModel) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('重新命名功能尚未實作')),
+    final controller = TextEditingController(text: session.sessionName);
+    showDialog(
+      context: context,
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('重新命名'),
+          content: TextField(
+            controller: controller,
+            autofocus: true,
+            decoration: const InputDecoration(
+              labelText: '新的 Session 名稱',
+            ),
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('取消')),
+            ElevatedButton(
+              onPressed: () {
+                viewModel.renameSession(session.id, controller.text);
+                Navigator.of(context).pop();
+              },
+              child: const Text('儲存'),
+            ),
+          ],
+        );
+      },
     );
   }
 }

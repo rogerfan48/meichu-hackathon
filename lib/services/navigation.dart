@@ -5,6 +5,7 @@ import 'package:go_router/go_router.dart';
 import 'package:foodie/pages/main_page.dart';
 import 'package:foodie/pages/home_page.dart';
 import 'package:foodie/pages/flashcard/flashcard_page.dart';
+import 'package:foodie/pages/flashcard/flashcard_practice_page.dart';
 import 'package:foodie/pages/screenReader/accessibility_page.dart';
 import 'package:foodie/pages/history_page.dart';
 
@@ -25,6 +26,12 @@ final routerConfig = GoRouter(
         GoRoute(
           path: '/flashcard',
           pageBuilder: (context, state) => const NoTransitionPage(child: FlashcardPage()),
+          routes: [
+            GoRoute(
+              path: '/practice',
+              pageBuilder: (context, state) => const NoTransitionPage(child: FlashcardPracticePage()),
+            ),
+          ],
         ),
         GoRoute(
           path: '/history',

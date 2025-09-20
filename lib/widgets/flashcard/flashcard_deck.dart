@@ -42,6 +42,7 @@ class _FlashcardDeckState extends State<FlashcardDeck> {
   double _dragDx = 0.0;
   bool _gestureConsumed = false;
   int _currentIndex = 0;
+  AxisDirection _axisDirection = AxisDirection.left; // default left
 
   @override
   void initState() {
@@ -59,16 +60,28 @@ class _FlashcardDeckState extends State<FlashcardDeck> {
   void _handleThumbUp() {
     widget.onThumbUpGesture?.call();
     if (_currentIndex >= widget.cardTexts.length - 1) {
+      setState(() {
+        _axisDirection = AxisDirection.right;
+      });
       return;
     }
+    setState(() {
+      _axisDirection = AxisDirection.right;
+    });
     _swiperController.next();
   }
 
   void _handleThumbDown() {
     widget.onThumbDownGesture?.call();
     if (_currentIndex >= widget.cardTexts.length - 1) {
+      setState(() {
+        _axisDirection = AxisDirection.left;
+      });
       return;
     }
+    setState(() {
+      _axisDirection = AxisDirection.left;
+    });
     _swiperController.next();
   }
 
@@ -105,6 +118,7 @@ class _FlashcardDeckState extends State<FlashcardDeck> {
         physics: const NeverScrollableScrollPhysics(),
         allowImplicitScrolling: false,
         layout: SwiperLayout.STACK,
+        axisDirection: _axisDirection,
         itemWidth: widget.itemWidth,
         loop: false,
         onIndexChanged: (i) {

@@ -1,11 +1,7 @@
-import 'package:card_swiper/card_swiper.dart';
 import 'package:flutter/material.dart';
 
-import 'package:foodie/widgets/flashcard/thumb_button.dart';
-import 'package:foodie/widgets/flashcard/flash_card.dart';
-import 'package:foodie/widgets/flashcard/flashcard_deck.dart';
-
-import '../../api_key.dart';
+import 'package:foodie/widgets/flashcard/round_button.dart';
+import 'package:go_router/go_router.dart';
 
 class FlashcardPage extends StatefulWidget {
   const FlashcardPage({super.key});
@@ -15,64 +11,37 @@ class FlashcardPage extends StatefulWidget {
 }
 
 class _FlashcardPageState extends State<FlashcardPage> {
-  final FlashcardDeckController _deckController = FlashcardDeckController();
-  final List<String> _cardTexts = const ['蘋果', 'Banana', 'Orange'];
-  final GlobalKey<AnimatedThumbButtonState> _thumbUpKey = GlobalKey();
-  final GlobalKey<AnimatedThumbButtonState> _thumbDownKey = GlobalKey();
-
-  @override
-  void dispose() {
-    _deckController.dispose();
-    super.dispose();
-  }
-
-  void _thumbUp() {
-    _deckController.thumbUp();
-  }
-
-  void _thumbDown() {
-    _deckController.thumbDown();
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Column(
-        children: [
-          Expanded(
-            child: FlashcardDeck(
-              controller: _deckController,
-              cardTexts: _cardTexts,
-              itemWidth: 500.0,
-              onThumbUpGesture: () {
-                _thumbUpKey.currentState?.playAnimation();
-              },
-              onThumbDownGesture: () {
-                _thumbDownKey.currentState?.playAnimation();
-              },
-            ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(16.0),
+      appBar: AppBar(title: const Text('Flashcards')),
+      body: SafeArea(
+        child: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(24.0),
             child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: [
-                  AnimatedThumbButton(
-                    key: _thumbDownKey,
-                    icon: Icons.thumb_down,
-                    color: Colors.red,
-                    onPressed: _thumbDown,
-                  ),
-                  AnimatedThumbButton(
-                    key: _thumbUpKey,
-                    icon: Icons.thumb_up,
-                    color: Colors.green,
-                    onPressed: _thumbUp,
-                  ),
-                ],
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                AnimatedRoundButton(
+                  label: 'Listen',
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  onPressed: () {
+                    context.go('/flashcard/practice');
+                  },
+                ),
+                AnimatedRoundButton(
+                  label: 'Practice',
+                  color: Theme.of(context).colorScheme.secondaryContainer,
+                  textColor: Theme.of(context).colorScheme.onSecondaryContainer,
+                  onPressed: () {
+                    context.go('/flashcard/practice');
+                  },
+                ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }

@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+
 import 'package:foodie/widgets/flashcard/flashcard_deck.dart';
-import 'package:foodie/widgets/flashcard/round_button.dart';
+import 'package:foodie/widgets/flashcard/icon_button.dart';
 
 class FlashcardPracticePage extends StatefulWidget {
   const FlashcardPracticePage({super.key});
@@ -47,6 +49,7 @@ class _FlashcardPracticePageState extends State<FlashcardPracticePage> {
               controller: _deckController,
               cardTexts: _cardTexts,
               onIndexChanged: _onIndexChanged,
+              onEnd: () => context.pop(),
             ),
           ),
           Padding(
@@ -54,21 +57,20 @@ class _FlashcardPracticePageState extends State<FlashcardPracticePage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                AnimatedRoundButton(
+                AnimatedIconButton(
                   icon: Icons.chevron_left,
                   color: colorScheme.secondaryContainer,
-                  onPressed: _currentIndex > 0 ? () => _deckController.thumbDown() : null,
+                  onPressed: () => _deckController.thumbDown(),
                 ),
-                AnimatedRoundButton(
+                AnimatedIconButton(
                   icon: _isRecording ? Icons.mic_off : Icons.mic,
                   color: _isRecording ? Colors.red : colorScheme.primary,
-                  textColor: _isRecording ? Colors.white : colorScheme.onPrimary,
                   onPressed: _toggleRecording,
                 ),
-                AnimatedRoundButton(
+                AnimatedIconButton(
                   icon: Icons.chevron_right,
                   color: colorScheme.secondaryContainer,
-                  onPressed: _currentIndex < _cardTexts.length -1 ? () => _deckController.thumbUp() : null,
+                  onPressed: () => _deckController.thumbUp(),
                 ),
               ],
             ),

@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
-import 'package:foodie/widgets/flashcard/thumb_button.dart';
+import 'package:foodie/widgets/flashcard/icon_button.dart';
 import 'package:foodie/widgets/flashcard/flashcard_deck.dart';
 
 class FlashcardReviewPage extends StatefulWidget {
@@ -14,8 +14,8 @@ class FlashcardReviewPage extends StatefulWidget {
 class _FlashcardReviewPageState extends State<FlashcardReviewPage> {
   final FlashcardDeckController _deckController = FlashcardDeckController();
   final List<String> _cardTexts = const ['蘋果', 'Banana', 'Orange'];
-  final GlobalKey<AnimatedThumbButtonState> _thumbUpKey = GlobalKey();
-  final GlobalKey<AnimatedThumbButtonState> _thumbDownKey = GlobalKey();
+  final GlobalKey<AnimatedIconButtonState> _thumbUpKey = GlobalKey();
+  final GlobalKey<AnimatedIconButtonState> _thumbDownKey = GlobalKey();
 
   @override
   void dispose() {
@@ -58,13 +58,13 @@ class _FlashcardReviewPageState extends State<FlashcardReviewPage> {
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                AnimatedThumbButton(
+                AnimatedIconButton(
                   key: _thumbDownKey,
                   icon: Icons.thumb_down,
                   color: Colors.red,
                   onPressed: _thumbDown,
                 ),
-                AnimatedThumbButton(
+                AnimatedIconButton(
                   key: _thumbUpKey,
                   icon: Icons.thumb_up,
                   color: Colors.green,

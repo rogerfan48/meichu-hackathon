@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 
-class AnimatedThumbButton extends StatefulWidget {
+class AnimatedIconButton extends StatefulWidget {
   final IconData icon;
   final Color color;
   final VoidCallback onPressed;
 
-  const AnimatedThumbButton({
+  const AnimatedIconButton({
     super.key,
     required this.icon,
     required this.color,
@@ -13,10 +13,10 @@ class AnimatedThumbButton extends StatefulWidget {
   });
 
   @override
-  State<AnimatedThumbButton> createState() => AnimatedThumbButtonState();
+  State<AnimatedIconButton> createState() => AnimatedIconButtonState();
 }
 
-class AnimatedThumbButtonState extends State<AnimatedThumbButton>
+class AnimatedIconButtonState extends State<AnimatedIconButton>
     with SingleTickerProviderStateMixin {
   late final AnimationController _controller;
   late final Animation<double> _animation;

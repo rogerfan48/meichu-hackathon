@@ -35,7 +35,7 @@ class _FlashcardPageState extends State<FlashcardPage> {
                   color: Theme.of(context).colorScheme.secondaryContainer,
                   textColor: Theme.of(context).colorScheme.onSecondaryContainer,
                   onPressed: () {
-                    context.go('/flashcard/review');
+                    context.go('/flashcard/practice');
                   },
                 ),
               ],

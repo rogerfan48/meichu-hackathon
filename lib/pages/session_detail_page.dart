@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import '../models/card_model.dart';
 import '../models/session_model.dart';
 import '../repositories/card_repository.dart';
 import '../repositories/session_repository.dart';
 import '../view_models/account_vm.dart';
+import '../view_models/cards_page_view_model.dart'; // ** 引入 CardsPageViewModel **
 import '../view_models/session_detail_view_model.dart';
 import '../widgets/firebase_image.dart';
-import '../widgets/shared/study_card_tile.dart'; // ** 引入新的共用 Widget **
+import '../widgets/flashcard/add_edit_card_dialog.dart'; // ** 引入對話框 **
+import '../widgets/shared/study_card_tile.dart';
 
 class SessionDetailPage extends StatelessWidget {
   final String sessionId;
@@ -21,6 +24,10 @@ class SessionDetailPage extends StatelessWidget {
       return const Scaffold(body: Center(child: Text("User not logged in.")));
     }
 
+    // 我們需要 CardsPageViewModel 來觸發編輯/刪除操作
+    // 因為這個 ViewModel 是在 ProxyProvider 中創建的，所以我們可以直接讀取它
+    final cardsViewModel = context.read<CardsPageViewModel?>();
+
     return ChangeNotifierProvider(
       create: (context) => SessionDetailViewModel(
         userId: userId,
@@ -34,14 +41,15 @@ class SessionDetailPage extends StatelessWidget {
             appBar: AppBar(
               title: Text(viewModel.session?.sessionName ?? "Loading..."),
             ),
-            body: _buildBody(context, viewModel),
+            // 傳入 cardsViewModel 以便卡片列表可以使用
+            body: _buildBody(context, viewModel, cardsViewModel),
           );
         },
       ),
     );
   }
 
-  Widget _buildBody(BuildContext context, SessionDetailViewModel viewModel) {
+  Widget _buildBody(BuildContext context, SessionDetailViewModel viewModel, CardsPageViewModel? cardsViewModel) {
     switch (viewModel.state) {
       case SessionDetailPageState.loading:
         return const Center(child: CircularProgressIndicator());
@@ -66,6 +74,7 @@ class SessionDetailPage extends StatelessWidget {
                 subtitle: Text(file.fileURL, overflow: TextOverflow.ellipsis),
               ),
             )),
+            
             const SizedBox(height: 24),
             _buildSectionHeader("Image Explanations (${session.imgExplanations.length})", null),
             const SizedBox(height: 8),
@@ -93,17 +102,57 @@ class SessionDetailPage extends StatelessWidget {
                 ],
               ),
             )),
+            
             const SizedBox(height: 24),
             _buildSectionHeader("Cards (${viewModel.cards.length})", null),
             const SizedBox(height: 8),
-            // ** 關鍵修改：使用 StudyCardTile 來顯示卡片列表 **
+            // ** 關鍵修改：使用 StudyCardTile 並傳入回調 **
             ...viewModel.cards.map((card) {
-              // 在這個頁面，我們不提供刪除或編輯功能，所以不傳遞回調
-              return StudyCardTile(card: card);
+              return StudyCardTile(
+                card: card,
+                onEdit: () {
+                  if (cardsViewModel != null) {
+                    showAddOrEditCardDialog(context, cardsViewModel, existingCard: card);
+                  }
+                },
+                onDelete: () {
+                  if (cardsViewModel != null) {
+                    _showDeleteConfirmationDialog(context, card, cardsViewModel);
+                  }
+                },
+              );
             }),
           ],
         );
     }
+  }
+
+  // 新增的刪除確認對話框 (與 CardManagementView 中的邏輯相同)
+  void _showDeleteConfirmationDialog(BuildContext context, StudyCard card, CardsPageViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('確認刪除'),
+        content: const Text('刪除後將無法復原，您確定要刪除這張卡片嗎？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              viewModel.deleteCard(card);
+              Navigator.of(dialogContext).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('已刪除 "${card.text}"'), duration: const Duration(seconds: 2)),
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('刪除'),
+          ),
+        ],
+      ),
+    );
   }
 
   Widget _buildSummaryCard(Session session, SessionDetailViewModel viewModel) {

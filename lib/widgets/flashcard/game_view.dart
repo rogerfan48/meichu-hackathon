@@ -18,36 +18,34 @@ class GameView extends StatelessWidget {
     }
   }
 
+  // ** 關鍵修改：簡化遊戲設置頁面 **
   Widget _buildGameSetupView(BuildContext context) {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          const Icon(Icons.school_outlined, size: 64, color: Colors.grey),
-          const SizedBox(height: 16),
-          Text('今日應複習 ${viewModel.dueCardCount} 張卡片', style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold)),
-          const SizedBox(height: 16),
-          const Text('選擇要練習的標籤（若不選擇則練習所有到期的卡片）'),
-          const SizedBox(height: 16),
-          Wrap(
-            spacing: 8.0,
-            runSpacing: 4.0,
-            alignment: WrapAlignment.center,
-            children: viewModel.availableTags.map((tag) {
-              final isSelected = viewModel.selectedTagsForGame.contains(tag);
-              return FilterChip(
-                label: Text(tag),
-                selected: isSelected,
-                onSelected: (selected) => viewModel.toggleTagForGame(tag),
-              );
-            }).toList(),
-          ),
+          const Icon(Icons.school_outlined, size: 80, color: Colors.grey),
           const SizedBox(height: 24),
-          ElevatedButton(
+          Text(
+            '今日應複習 ${viewModel.dueCardCount} 張卡片',
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+          const SizedBox(height: 12),
+          const Text(
+            '系統將從到期的卡片中隨機抽取最多10張進行複習。',
+            textAlign: TextAlign.center,
+            style: TextStyle(color: Colors.grey, fontSize: 14),
+          ),
+          const SizedBox(height: 32),
+          ElevatedButton.icon(
+            icon: const Icon(Icons.play_arrow),
+            label: const Text('開始複習'),
             onPressed: viewModel.dueCardCount == 0 ? null : () => viewModel.startGame(),
-            style: ElevatedButton.styleFrom(minimumSize: const Size(200, 48), padding: const EdgeInsets.symmetric(horizontal: 32)),
-            child: const Text('開始複習'),
+            style: ElevatedButton.styleFrom(
+              minimumSize: const Size(220, 52),
+              textStyle: const TextStyle(fontSize: 16),
+            ),
           ),
         ],
       ),

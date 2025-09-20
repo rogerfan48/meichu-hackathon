@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../models/card_model.dart';
 import '../../view_models/cards_page_view_model.dart';
 import '../shared/study_card_tile.dart';
 import 'add_edit_card_dialog.dart';
@@ -34,23 +35,48 @@ class CardManagementView extends StatelessWidget {
                   itemCount: viewModel.allCards.length,
                   itemBuilder: (context, index) {
                     final card = viewModel.allCards[index];
-                    // ** 關鍵修改：直接使用 StudyCardTile **
+                    // ** 關鍵修改：使用新的回調參數 **
                     return StudyCardTile(
                       card: card,
-                      onLongPress: () {
+                      onEdit: () {
                         showAddOrEditCardDialog(context, viewModel, existingCard: card);
                       },
                       onDelete: () {
-                        viewModel.deleteCard(card);
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          SnackBar(content: Text('已刪除 "${card.text}"'), duration: const Duration(seconds: 2)),
-                        );
+                        _showDeleteConfirmationDialog(context, card, viewModel);
                       },
                     );
                   },
                 ),
         ),
       ],
+    );
+  }
+  
+  // 新增的輔助方法，用於顯示刪除確認對話框
+  void _showDeleteConfirmationDialog(BuildContext context, StudyCard card, CardsPageViewModel viewModel) {
+    showDialog(
+      context: context,
+      builder: (dialogContext) => AlertDialog(
+        title: const Text('確認刪除'),
+        content: const Text('刪除後將無法復原，您確定要刪除這張卡片嗎？'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogContext).pop(),
+            child: const Text('取消'),
+          ),
+          TextButton(
+            onPressed: () {
+              viewModel.deleteCard(card);
+              Navigator.of(dialogContext).pop();
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('已刪除 "${card.text}"'), duration: const Duration(seconds: 2)),
+              );
+            },
+            style: TextButton.styleFrom(foregroundColor: Colors.red),
+            child: const Text('刪除'),
+          ),
+        ],
+      ),
     );
   }
 }

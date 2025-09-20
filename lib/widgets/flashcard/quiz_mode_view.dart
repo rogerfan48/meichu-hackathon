@@ -24,6 +24,7 @@ class _QuizModeViewState extends State<QuizModeView> {
   bool _speechEnabled = false;
   bool _isRecording = false;
   String _bannerText = '--';
+  bool isVisible = false;
   
   late List<StudyCard> _quizDeck;
 
@@ -179,26 +180,48 @@ class _QuizModeViewState extends State<QuizModeView> {
     );
   }
 
+  Color get _bannerColor {
+    switch (_bannerText) {
+      case "正確":
+        return Colors.green.shade100;
+      case "錯誤":
+        return Colors.red.shade100;
+      default:
+        return Colors.transparent;
+    }
+  }
+
+  Color get _borderColor {
+    switch (_bannerText) {
+      case "正確":
+        return Colors.green;
+      case "錯誤":
+        return Colors.red;
+      default:
+        return Colors.transparent;
+    }
+  }
+
   Widget _buildBanner() {
-    // _buildBanner 方法保持不變
     final theme = Theme.of(context);
-    bool isVisible = _bannerText != '--';
-    Color bannerColor = _bannerText == "正確" ? Colors.green.shade100 : Colors.red.shade100;
-    Color borderColor = _bannerText == "正確" ? Colors.green : Colors.red;
+    isVisible = _bannerText != '--';
 
     return AnimatedOpacity(
       opacity: isVisible ? 1.0 : 0.0,
       duration: const Duration(milliseconds: 300),
-      child: Container(
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 300),
         width: MediaQuery.of(context).size.width * 0.6,
         height: 50,
         decoration: BoxDecoration(
-          color: bannerColor,
-          border: Border.all(color: borderColor, width: 2),
+          color: _bannerColor,
+          border: Border.all(color: _borderColor, width: 2),
           borderRadius: BorderRadius.circular(8.0),
         ),
         child: Center(
-          child: Text(_bannerText, style: TextStyle(color: borderColor, fontWeight: FontWeight.bold)),
+          child: Text(_bannerText, 
+            style: TextStyle(color: _borderColor, fontWeight: FontWeight.bold),
+          ),
         ),
       ),
     );

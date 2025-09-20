@@ -1,16 +1,17 @@
 import 'dart:async';
 import 'dart:collection';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/foundation.dart';
-import '../repositories/card_repository.dart';
-import '../repositories/session_repository.dart';
 import '../models/card_model.dart';
 import '../models/session_model.dart';
-
+import '../repositories/card_repository.dart';
+import '../repositories/session_repository.dart';
 
 enum CardsPageState { loading, idle, error }
 enum GameState { setup, active, finished }
 
+// 更新後的回答結果枚舉
 enum ReviewOutcome { again, hard, good, easy }
 
 class CardsPageViewModel extends ChangeNotifier {
@@ -49,7 +50,6 @@ class CardsPageViewModel extends ChangeNotifier {
   int _dueCardCount = 0;
   int get dueCardCount => _dueCardCount;
   
-  // ** 關鍵修正：重新加入 getter 以提供遊戲進度 **
   int get currentGameCardIndex => _currentGameCardIndex;
   int get totalGameCards => _gameDeck.length;
 
@@ -57,18 +57,16 @@ class CardsPageViewModel extends ChangeNotifier {
     _listenToData();
   }
 
+  // --- 核心修改：新的 SRS 演算法 ---
+
+  /// 根據熟練度等級獲取下一次複習的間隔時間 (更符合 SRS 的指數增長模型)
   Duration _getReviewInterval(int masteryLevel) {
-    switch (masteryLevel) {
-      case 0: return const Duration(minutes: 1);
-      case 1: return const Duration(minutes: 10);
-      case 2: return const Duration(days: 1);
-      case 3: return const Duration(days: 4);
-      case 4: return const Duration(days: 10);
-      case 5: return const Duration(days: 30);
-      default: return const Duration(days: 60);
-    }
+    if (masteryLevel <= 1) return const Duration(minutes: 5); 
+    final days = pow(2.5, masteryLevel - 2).round();
+    return Duration(days: days);
   }
 
+  /// 判斷一張卡片是否到期需要複習
   bool _isCardDue(StudyCard card) {
     if (card.lastReviewedAt == null) return true;
     final interval = _getReviewInterval(card.masteryLevel);
@@ -105,6 +103,7 @@ class CardsPageViewModel extends ChangeNotifier {
     );
   }
   
+  /// 開始遊戲，包含最多10張卡片的邏輯
   void startGame() {
     List<StudyCard> dueCards = _allCards.where(_isCardDue).toList();
 
@@ -116,33 +115,56 @@ class CardsPageViewModel extends ChangeNotifier {
 
     if (dueCards.isEmpty) return;
 
-    _gameDeck = dueCards..shuffle();
+    dueCards.shuffle();
+    
+    // ** 關鍵修改：最多隻取10張卡片進行練習 **
+    _gameDeck = dueCards.take(10).toList(); 
+
     _currentGameCardIndex = 0;
     _gameState = GameState.active;
     notifyListeners();
   }
 
+  /// 處理用戶的回答，更新卡片熟練度，並確保等級在 1-5 之間
   void processAnswer(StudyCard card, ReviewOutcome outcome) {
     if (_gameState != GameState.active) return;
 
     int currentLevel = card.masteryLevel;
     int nextLevel = currentLevel;
 
+    // ** 關鍵修改：新的熟練度計算規則 **
     switch (outcome) {
-      case ReviewOutcome.again: nextLevel = 1; break;
-      case ReviewOutcome.hard: nextLevel = (currentLevel <= 2) ? currentLevel + 1 : currentLevel; break;
-      case ReviewOutcome.good: nextLevel = currentLevel + 1; break;
-      case ReviewOutcome.easy: nextLevel = currentLevel + 2; break;
+      case ReviewOutcome.again: // 忘記
+        nextLevel = 1;
+        break;
+      case ReviewOutcome.hard: // 困難
+        nextLevel = currentLevel - 1;
+        break;
+      case ReviewOutcome.good: // 普通
+        nextLevel = currentLevel + 1;
+        break;
+      case ReviewOutcome.easy: // 熟悉
+        nextLevel = currentLevel + 3;
+        break;
     }
+    
+    // ** 關鍵修改：確保熟練度等級被限制在 1 到 5 之間 **
+    // (新卡片等級為0，一旦被複習，最低也會變成1)
+    nextLevel = nextLevel.clamp(1, 5); 
     
     cardRepository.updateCardReviewStatus(userId, card.id, nextLevel);
 
-    if (_currentGameCardIndex < _gameDeck.length - 1) {
-      _currentGameCardIndex++;
-    } else {
-      _gameState = GameState.finished;
-    }
-    notifyListeners();
+    // 延遲一小段時間再翻到下一張卡，讓用戶有時間看到回饋
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (_gameState != GameState.active) return; // 避免在 dispose 後還執行
+
+      if (_currentGameCardIndex < _gameDeck.length - 1) {
+        _currentGameCardIndex++;
+      } else {
+        _gameState = GameState.finished;
+      }
+      notifyListeners();
+    });
   }
   
   void endGame() {
@@ -183,15 +205,14 @@ class CardsPageViewModel extends ChangeNotifier {
 
   Future<void> createCard({required String sessionId, required String text, required List<String> tags}) async {
     final id = cardRepository.newCardId();
-final initialReviewDate = Timestamp.fromDate(DateTime(2000, 1, 1));
-
+    final initialReviewDate = Timestamp.fromDate(DateTime(2000, 1, 1));
     final newCard = StudyCard(
       id: id,
       sessionID: sessionId,
       text: text,
       tags: tags,
-      lastReviewedAt: initialReviewDate, // 設定初始複習時間
-      masteryLevel: 0, // 初始熟練度為 0
+      lastReviewedAt: initialReviewDate,
+      masteryLevel: 0,
     );
     await cardRepository.upsertCard(userId, newCard);
     await sessionRepository.addCardLink(userId, sessionId, id);

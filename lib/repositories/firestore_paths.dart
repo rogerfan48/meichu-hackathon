@@ -1,11 +1,16 @@
 class FirestorePaths {
+  // Path to the user document
   static String userDoc(String uid) => 'apps/lexiaid/users/$uid';
-  static String cards(String uid) => '${userDoc(uid)}/cards'; // map path usage helper
-  static String sessions(String uid) => '${userDoc(uid)}/sessions';
-  // Map-based field keys inside user document
-  static String cardField(String cardId) => 'cards.$cardId';
-  static String sessionField(String sessionId) => 'sessions.$sessionId';
-  static String sessionCardIDs(String sessionId) => 'sessions.$sessionId.cardIDs';
-  static String sessionFileResources(String sessionId) => 'sessions.$sessionId.fileResources';
-  static String sessionImgExplanations(String sessionId) => 'sessions.$sessionId.imgExplanations';
+
+  // Path to the 'sessions' subcollection for a specific user
+  static String sessionsCollection(String uid) => '${userDoc(uid)}/sessions';
+
+  // Path to a specific session document within the subcollection
+  static String sessionDoc(String uid, String sessionId) => '${sessionsCollection(uid)}/$sessionId';
+
+  // Path to the 'cards' subcollection for a specific user
+  static String cardsCollection(String uid) => '${userDoc(uid)}/cards';
+
+  // Path to a specific card document within the subcollection
+  static String cardDoc(String uid, String cardId) => '${cardsCollection(uid)}/$cardId';
 }

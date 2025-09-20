@@ -6,60 +6,65 @@ class CardRepository {
   CardRepository(this._firestore);
   final FirebaseFirestore _firestore;
 
-  DocumentReference<Map<String, dynamic>> _userRef(String uid) => _firestore.doc(FirestorePaths.userDoc(uid));
+  // Helper to get a reference to the 'cards' collection for a user
+  CollectionReference<Map<String, dynamic>> _cardsCollection(String uid) =>
+      _firestore.collection(FirestorePaths.cardsCollection(uid));
 
-  // Generate a new card ID using Firestore's client-side auto ID utility.
+  // Generate a new card ID client-side.
   String newCardId() => _firestore.collection('_').doc().id;
 
+  // Watch the entire 'cards' subcollection for a user
   Stream<List<StudyCard>> watchAllCards(String uid) {
-    return _userRef(uid).snapshots().map((snap) {
-      final data = snap.data() ?? {};
-      final cardsMap = (data['cards'] as Map<String, dynamic>? ?? {});
-      return cardsMap.entries
-          .map((e) => StudyCard.fromFirestore(Map<String, dynamic>.from(e.value), e.key))
+    return _cardsCollection(uid).snapshots().map((snapshot) {
+      return snapshot.docs
+          .map((doc) => StudyCard.fromFirestore(doc.data(), doc.id))
           .toList();
     });
   }
 
-  // Watch only cards belonging to a specific session (client-side filter on single doc pattern)
+  // Watch cards belonging to a specific session using a Firestore query
   Stream<List<StudyCard>> watchCardsForSession(String uid, String sessionId) {
-    return watchAllCards(uid).map((all) => all.where((c) => c.sessionID == sessionId).toList());
+    return _cardsCollection(uid)
+        .where('sessionID', isEqualTo: sessionId)
+        .snapshots()
+        .map((snapshot) {
+      return snapshot.docs
+          .map((doc) => StudyCard.fromFirestore(doc.data(), doc.id))
+          .toList();
+    });
   }
 
+  // Create or update a card document in the subcollection
   Future<void> upsertCard(String uid, StudyCard card) async {
-    await _userRef(uid).set({
-      FirestorePaths.cardField(card.id): {
-        'sessionID': card.sessionID,
-        'tags': card.tags,
-        'imgURL': card.imgURL,
-        'text': card.text,
-        'goodCount': card.goodCount,
-        'badCount': card.badCount,
-      }
-    }, SetOptions(merge: true));
+    await _cardsCollection(uid).doc(card.id).set(card.toJson());
   }
 
-  // Increment feedback counts for a card
+  // Increment feedback counts on a specific card document
   Future<void> incrementFeedback(String uid, String cardId, {int goodDelta = 0, int badDelta = 0}) async {
     final updates = <String, dynamic>{};
     if (goodDelta != 0) {
-      updates['${FirestorePaths.cardField(cardId)}.goodCount'] = FieldValue.increment(goodDelta);
+      updates['goodCount'] = FieldValue.increment(goodDelta);
     }
     if (badDelta != 0) {
-      updates['${FirestorePaths.cardField(cardId)}.badCount'] = FieldValue.increment(badDelta);
+      updates['badCount'] = FieldValue.increment(badDelta);
     }
     if (updates.isNotEmpty) {
-      await _userRef(uid).update(updates);
+      await _firestore.doc(FirestorePaths.cardDoc(uid, cardId)).update(updates);
     }
   }
 
-  Future<void> deleteCard(String uid, String cardId, {String? sessionId}) async {
-    final updates = <String, dynamic>{
-      FirestorePaths.cardField(cardId): FieldValue.delete(),
-    };
-    if (sessionId != null) {
-      updates[FirestorePaths.sessionCardIDs(sessionId)] = FieldValue.arrayRemove([cardId]);
-    }
-    await _userRef(uid).update(updates);
+  // Delete a card document from the subcollection
+  Future<void> deleteCard(String uid, String cardId, {required String sessionId}) async {
+    // We also need to remove the cardId from the session's cardIDs array.
+    // This is a transaction to ensure both operations succeed or fail together.
+    final cardRef = _firestore.doc(FirestorePaths.cardDoc(uid, cardId));
+    final sessionRef = _firestore.doc(FirestorePaths.sessionDoc(uid, sessionId));
+
+    await _firestore.runTransaction((transaction) async {
+      transaction.delete(cardRef);
+      transaction.update(sessionRef, {
+        'cardIDs': FieldValue.arrayRemove([cardId])
+      });
+    });
   }
 }

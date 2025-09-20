@@ -31,12 +31,17 @@ import 'view_models/settings_page_view_model.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp(
+      options: DefaultFirebaseOptions.currentPlatform,
+    );
+  }
 
   runApp(
     MultiProvider(
       providers: [
-        // 1. Firebase 服務實例
+        // 1. Firebase Service Instances
         Provider<FirebaseAuth>(create: (_) => FirebaseAuth.instance),
         Provider<FirebaseFirestore>(create: (_) => FirebaseFirestore.instance),
         Provider<FirebaseStorage>(create: (_) => FirebaseStorage.instance),
@@ -72,7 +77,7 @@ void main() async {
           create: (context) => AccountViewModel(context.read<AuthService>()),
         ),
 
-        // 5. Proxy ViewModels (依賴登入狀態)
+        // 5. Proxy ViewModels (depend on login state)
         ChangeNotifierProxyProvider<AccountViewModel, UploadPageViewModel?>(
           create: (_) => null,
           update: (context, accountViewModel, previous) {
@@ -94,10 +99,11 @@ void main() async {
             final userId = accountViewModel.firebaseUser?.uid;
             if (userId == null) return null;
             if (previous != null && previous.userId == userId) return previous;
+            // ** CRITICAL FIX HERE **
+            // The constructor for SessionsPageViewModel requires `sessionRepository`, not `userRepository`.
             return SessionsPageViewModel(
               sessionRepository: context.read<SessionRepository>(),
               userId: userId,
-              firestore: context.read<FirebaseFirestore>(),
             );
           },
         ),

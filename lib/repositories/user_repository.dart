@@ -1,151 +1,48 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/user_model.dart';
-import '../models/card_model.dart';
-import '../models/session_model.dart';
 import 'firestore_paths.dart';
 
 class UserRepository {
   UserRepository(this._firestore);
   final FirebaseFirestore _firestore;
 
-  DocumentReference<Map<String, dynamic>> _userRef(String uid) => 
+  DocumentReference<Map<String, dynamic>> _userRef(String uid) =>
       _firestore.doc(FirestorePaths.userDoc(uid));
 
-  // Profile management
-  Future<void> updateDefaultSpeechRate(String uid, double rate) async {
-    await _userRef(uid).update({
-      'defaultSpeechRate': rate,
+  // Watch user profile data
+  Stream<UserProfile?> watchUserProfile(String uid) {
+    return _userRef(uid).snapshots().map((snap) {
+      if (!snap.exists || snap.data() == null) return null;
+      return UserProfile.fromFirestore(snap.data()!, uid);
     });
   }
 
-  Future<void> updateUserProfile(String uid, Map<String, dynamic> profileUpdates) async {
-    await _userRef(uid).update(profileUpdates);
+  // Create user from Firebase Auth User
+  Future<void> createUser(User user) async {
+    final userProfile = UserProfile(
+      uid: user.uid,
+      userName: user.displayName ?? 'New User',
+      photoURL: user.photoURL,
+    );
+    await _userRef(user.uid).set(userProfile.toJson());
   }
 
-  // Update user profile with specific parameters (for compatibility with auth_service)
+  // Update user profile when auth details change
   Future<void> updateUserProfileFromAuth(String uid, String userName, String? photoURL) async {
     await _userRef(uid).update({
       'userName': userName,
       if (photoURL != null) 'photoURL': photoURL,
     });
   }
-
-  // Watch complete user profile with cards and sessions
-  Stream<UserProfile?> watchCompleteUserProfile(String uid) {
-    return _userRef(uid).snapshots().map((snap) {
-      if (!snap.exists) return null;
-      final data = snap.data() ?? {};
-      return UserProfile.fromFirestore(data, uid);
-    });
-  }
-
-  // Watch only user profile data (no cards/sessions)
-  Stream<Map<String, dynamic>?> watchUserProfileData(String uid) {
-    return _userRef(uid).snapshots().map((snap) {
-      if (!snap.exists) return null;
-      final data = snap.data() ?? {};
-      return {
-        'uid': data['uid'],
-        'userName': data['userName'],
-        'defaultSpeechRate': data['defaultSpeechRate'],
-      };
-    });
-  }
-
-  // Create user profile
-  Future<void> createUserProfile(UserProfile profile) async {
-    await _userRef(profile.uid).set({
-      'uid': profile.uid,
-      'userName': profile.userName,
-      'defaultSpeechRate': profile.defaultSpeechRate,
-      'cards': {}, // Initialize as empty map for nested card structure
-      'sessions': {}, // Initialize as empty map for nested session structure
-    });
-  }
-
-  // Create user from Firebase Auth User (for compatibility with auth_service)
-  Future<void> createUser(User user) async {
-    await _userRef(user.uid).set({
-      'uid': user.uid,
-      'userName': user.displayName ?? 'User',
-      'photoURL': user.photoURL,
-      'defaultSpeechRate': 1.0,
-      'cards': {}, // Initialize as empty map for nested card structure
-      'sessions': {}, // Initialize as empty map for nested session structure
-    });
-  }
-
-  // User management convenience methods
-  Future<StudyCard?> getUserCard(String uid, String cardId) async {
-    final snap = await _userRef(uid).get();
-    if (!snap.exists) return null;
-    
-    final data = snap.data() ?? {};
-    final cardsMap = data['cards'] as Map<String, dynamic>? ?? {};
-    final cardData = cardsMap[cardId] as Map<String, dynamic>?;
-    
-    if (cardData == null) return null;
-    return StudyCard.fromFirestore(cardData, cardId);
-  }
-
-  Future<Session?> getUserSession(String uid, String sessionId) async {
-    final snap = await _userRef(uid).get();
-    if (!snap.exists) return null;
-    
-    final data = snap.data() ?? {};
-    final sessionsMap = data['sessions'] as Map<String, dynamic>? ?? {};
-    final sessionData = sessionsMap[sessionId] as Map<String, dynamic>?;
-    
-    if (sessionData == null) return null;
-    return Session.fromFirestore(sessionData, sessionId);
-  }
-
-  Future<List<StudyCard>> getAllUserCards(String uid) async {
-    final snap = await _userRef(uid).get();
-    if (!snap.exists) return [];
-    
-    final data = snap.data() ?? {};
-    final cardsMap = data['cards'] as Map<String, dynamic>? ?? {};
-    
-    return cardsMap.entries
-        .map((entry) => StudyCard.fromFirestore(
-            Map<String, dynamic>.from(entry.value), entry.key))
-        .toList();
-  }
-
-  Future<List<Session>> getAllUserSessions(String uid) async {
-    final snap = await _userRef(uid).get();
-    if (!snap.exists) return [];
-    
-    final data = snap.data() ?? {};
-    final sessionsMap = data['sessions'] as Map<String, dynamic>? ?? {};
-    
-    return sessionsMap.entries
-        .map((entry) => Session.fromFirestore(
-            Map<String, dynamic>.from(entry.value), entry.key))
-        .toList();
-  }
-
-  // Get user's cards for a specific session
-  Future<List<StudyCard>> getUserCardsForSession(String uid, String sessionId) async {
-    final cards = await getAllUserCards(uid);
-    return cards.where((card) => card.sessionID == sessionId).toList();
-  }
-
-  // Check if user exists
-  Future<bool> userExists(String uid) async {
-    final doc = await _userRef(uid).get();
-    return doc.exists;
-  }
-
-  // Get user document (for compatibility with auth_service)
+  
+  // Get user document snapshot (for auth_service existence check)
   Future<DocumentSnapshot<Map<String, dynamic>>> getUser(String uid) async {
     return await _userRef(uid).get();
   }
 
-  // Delete user (for cleanup)
-  Future<void> deleteUser(String uid) async {
-    await _userRef(uid).delete();
+  // Update a single field, like speech rate
+  Future<void> updateDefaultSpeechRate(String uid, double rate) async {
+    await _userRef(uid).update({'defaultSpeechRate': rate});
   }
 }

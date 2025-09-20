@@ -1,354 +1,126 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../view_models/cards_page_view_model.dart';
+import '../models/card_model.dart';
+import '../view_models/account_vm.dart';
+import '../models/session_model.dart';
 
-// Mock data models - TODO: Replace with actual models
-class FlashcardModel {
-  final String id;
-  final String front;
-  final String back;
-  final String? imageUrl;
-  final List<String> tags;
-  final int likes;
-  final int dislikes;
-
-  FlashcardModel({
-    required this.id,
-    required this.front,
-    required this.back,
-    this.imageUrl,
-    required this.tags,
-    required this.likes,
-    required this.dislikes,
-  });
-}
-
-class FlashcardPage extends StatefulWidget {
+class FlashcardPage extends StatelessWidget {
   const FlashcardPage({super.key});
 
   @override
-  State<FlashcardPage> createState() => _FlashcardPageState();
-}
-
-class _FlashcardPageState extends State<FlashcardPage> with TickerProviderStateMixin {
-  int _selectedTabIndex = 0;
-  List<FlashcardModel> _allCards = []; // TODO: Connect to backend
-  List<String> _availableTags = ['English', 'Math', 'Science', 'History']; // TODO: Connect to backend
-  List<String> _selectedTags = [];
-
-  // Game state
-  bool _isGameMode = false;
-  int _currentCardIndex = 0;
-  bool _isCardFlipped = false;
-  int _gameScore = 0;
-  int _totalGameCards = 0;
-
-  late TabController _tabController;
-
-  @override
-  void initState() {
-    super.initState();
-    _tabController = TabController(length: 2, vsync: this);
-    _loadFlashcards(); // TODO: Connect to backend
-  }
-
-  @override
-  void dispose() {
-    _tabController.dispose();
-    super.dispose();
-  }
-
-  void _loadFlashcards() {
-    // TODO: Load flashcards from backend
-    setState(() {
-      _allCards = [
-        FlashcardModel(
-          id: '1',
-          front: 'Apple',
-          back: '蘋果',
-          tags: ['English'],
-          likes: 5,
-          dislikes: 1,
+  Widget build(BuildContext context) {
+    final accountVM = context.watch<AccountViewModel>();
+    if (!accountVM.isLoggedIn) {
+      return Scaffold(
+        appBar: AppBar(title: const Text('單字卡'), automaticallyImplyLeading: false),
+        body: const Center(
+          child: Padding(
+            padding: EdgeInsets.all(24.0),
+            child: Text('請先至「設定」頁面登入以使用單字卡功能。',
+              textAlign: TextAlign.center, style: TextStyle(fontSize: 18, color: Colors.grey)),
+          ),
         ),
-        FlashcardModel(
-          id: '2',
-          front: 'Dog',
-          back: '狗',
-          tags: ['English'],
-          likes: 3,
-          dislikes: 0,
-        ),
-        FlashcardModel(
-          id: '3',
-          front: '2 + 2 = ?',
-          back: '4',
-          tags: ['Math'],
-          likes: 2,
-          dislikes: 0,
-        ),
-      ];
-    });
-  }
-
-  List<FlashcardModel> get _filteredCards {
-    if (_selectedTags.isEmpty) return _allCards;
-    return _allCards.where((card) => 
-        card.tags.any((tag) => _selectedTags.contains(tag))
-    ).toList();
-  }
-
-  void _startGame() {
-    final gameCards = _filteredCards;
-    if (gameCards.isEmpty) {
-      _showSnackBar('No cards available for selected tags');
-      return;
+      );
     }
 
-    setState(() {
-      _isGameMode = true;
-      _currentCardIndex = 0;
-      _isCardFlipped = false;
-      _gameScore = 0;
-      _totalGameCards = gameCards.length;
-    });
-  }
-
-  void _endGame() {
-    setState(() {
-      _isGameMode = false;
-    });
-    _showSnackBar('Game finished! Score: $_gameScore/$_totalGameCards');
-  }
-
-  void _nextCard(bool isCorrect) {
-    if (isCorrect) {
-      _gameScore++;
-    }
-    
-    // TODO: Record like/dislike for learning analytics
-
-    if (_currentCardIndex < _filteredCards.length - 1) {
-      setState(() {
-        _currentCardIndex++;
-        _isCardFlipped = false;
-      });
-    } else {
-      _endGame();
-    }
-  }
-
-  void _flipCard() {
-    setState(() {
-      _isCardFlipped = !_isCardFlipped;
-    });
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(message)),
+    return Consumer<CardsPageViewModel?>(
+      builder: (context, viewModel, child) {
+        if (viewModel == null) {
+          return const Scaffold(body: Center(child: Text('ViewModel 初始化中...')));
+        }
+        return DefaultTabController(
+          length: 2,
+          child: Scaffold(
+            appBar: AppBar(
+              title: const Text('單字卡'),
+              automaticallyImplyLeading: false,
+              bottom: TabBar(
+                tabs: const [
+                  Tab(text: '管理卡片', icon: Icon(Icons.view_list)),
+                  Tab(text: '遊戲模式', icon: Icon(Icons.games)),
+                ],
+                onTap: (index) {
+                  if (viewModel.gameState != GameState.setup && index == 0) {
+                    viewModel.endGame();
+                  }
+                },
+              ),
+            ),
+            body: _buildBody(context, viewModel),
+          ),
+        );
+      },
     );
   }
 
-  void _showAddCardDialog() {
-    String front = '';
-    String back = '';
-    List<String> selectedCardTags = [];
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Add New Card'),
-        content: StatefulBuilder(
-          builder: (context, setDialogState) => Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                onChanged: (value) => front = value,
-                decoration: const InputDecoration(
-                  labelText: 'Front',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                onChanged: (value) => back = value,
-                decoration: const InputDecoration(
-                  labelText: 'Back',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              const Text('Tags:'),
-              Wrap(
-                spacing: 8.0,
-                children: _availableTags.map((tag) {
-                  final isSelected = selectedCardTags.contains(tag);
-                  return FilterChip(
-                    label: Text(tag),
-                    selected: isSelected,
-                    onSelected: (selected) {
-                      setDialogState(() {
-                        if (selected) {
-                          selectedCardTags.add(tag);
-                        } else {
-                          selectedCardTags.remove(tag);
-                        }
-                      });
-                    },
-                  );
-                }).toList(),
-              ),
-            ],
-          ),
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () {
-              if (front.isNotEmpty && back.isNotEmpty) {
-                setState(() {
-                  _allCards.add(FlashcardModel(
-                    id: DateTime.now().millisecondsSinceEpoch.toString(),
-                    front: front,
-                    back: back,
-                    tags: selectedCardTags,
-                    likes: 0,
-                    dislikes: 0,
-                  ));
-                });
-                Navigator.pop(context);
-                _showSnackBar('Card added successfully!');
-                // TODO: Add card to backend
-              }
-            },
-            child: const Text('Add'),
-          ),
-        ],
-      ),
-    );
+  Widget _buildBody(BuildContext context, CardsPageViewModel viewModel) {
+    switch (viewModel.pageState) {
+      case CardsPageState.loading:
+        return const Center(child: CircularProgressIndicator());
+      case CardsPageState.error:
+        return Center(child: Text(viewModel.errorMessage ?? '發生未知錯誤'));
+      case CardsPageState.idle:
+        return TabBarView(
+          physics: const NeverScrollableScrollPhysics(), // Prevent swipe to change tabs
+          children: [
+            _buildCardManagementView(context, viewModel),
+            _buildGameView(context, viewModel),
+          ],
+        );
+    }
   }
 
-  void _deleteCard(FlashcardModel card) {
-    setState(() {
-      _allCards.removeWhere((c) => c.id == card.id);
-    });
-    _showSnackBar('Card deleted');
-    // TODO: Delete card from backend
-  }
-
-  void _generateImage(FlashcardModel card) {
-    // TODO: Implement AI image generation
-    _showSnackBar('AI image generation not implemented yet');
-  }
-
-  Widget _buildCardManagement() {
+  // --- Card Management View ---
+  Widget _buildCardManagementView(BuildContext context, CardsPageViewModel viewModel) {
     return Column(
       children: [
-        // Add Card Button
         Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
           child: ElevatedButton.icon(
-            onPressed: _showAddCardDialog,
+            onPressed: viewModel.allSessions.isEmpty 
+              ? null // Disable if no sessions exist
+              : () => _showAddOrEditCardDialog(context, viewModel),
             icon: const Icon(Icons.add),
-            label: const Text('Add New Card'),
-            style: ElevatedButton.styleFrom(
-              minimumSize: const Size(double.infinity, 48),
-            ),
+            label: const Text('新增卡片'),
+            style: ElevatedButton.styleFrom(minimumSize: const Size(double.infinity, 48)),
           ),
         ),
-        
-        // Cards List
+        if (viewModel.allSessions.isEmpty && viewModel.allCards.isEmpty)
+          const Padding(
+            padding: EdgeInsets.all(8.0),
+            child: Text("請先建立一個 Session 才能新增卡片。", style: TextStyle(color: Colors.grey)),
+          ),
         Expanded(
-          child: _allCards.isEmpty
-              ? const Center(
-                  child: Text(
-                    'No cards available.\nAdd some cards to get started!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(fontSize: 16, color: Colors.grey),
-                  ),
-                )
+          child: viewModel.allCards.isEmpty
+              ? const Center(child: Text('尚無卡片，快去新增一張吧！'))
               : ListView.builder(
-                  itemCount: _allCards.length,
+                  itemCount: viewModel.allCards.length,
                   itemBuilder: (context, index) {
-                    final card = _allCards[index];
+                    final card = viewModel.allCards[index];
                     return Card(
                       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
                       child: ListTile(
-                        title: Text(card.front),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text(card.back),
-                            const SizedBox(height: 4),
-                            Wrap(
-                              spacing: 4,
-                              children: card.tags.map((tag) => Chip(
-                                label: Text(tag, style: const TextStyle(fontSize: 10)),
-                                materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                              )).toList(),
-                            ),
-                          ],
-                        ),
-                        trailing: PopupMenuButton(
-                          itemBuilder: (context) => [
-                            const PopupMenuItem(
-                              value: 'edit',
-                              child: ListTile(
-                                leading: Icon(Icons.edit),
-                                title: Text('Edit'),
-                              ),
-                            ),
-                            if (card.imageUrl == null)
-                              const PopupMenuItem(
-                                value: 'generate_image',
-                                child: ListTile(
-                                  leading: Icon(Icons.auto_awesome),
-                                  title: Text('Generate Image'),
-                                ),
-                              ),
-                            const PopupMenuItem(
-                              value: 'delete',
-                              child: ListTile(
-                                leading: Icon(Icons.delete),
-                                title: Text('Delete'),
-                              ),
-                            ),
-                          ],
+                        leading: _buildCardImage(card),
+                        title: Text(card.text),
+                        subtitle: Text('讚: ${card.goodCount}, 倒讚: ${card.badCount}'),
+                        trailing: PopupMenuButton<String>(
                           onSelected: (value) {
-                            switch (value) {
-                              case 'edit':
-                                // TODO: Implement edit card
-                                _showSnackBar('Edit card not implemented yet');
-                                break;
-                              case 'generate_image':
-                                _generateImage(card);
-                                break;
-                              case 'delete':
-                                _deleteCard(card);
-                                break;
+                            if (value == 'edit') {
+                              _showAddOrEditCardDialog(context, viewModel, existingCard: card);
+                            } else if (value == 'delete') {
+                              viewModel.deleteCard(card);
+                            } else if (value == 'generate_image') {
+                              viewModel.generateImageForCard(card);
                             }
                           },
+                          itemBuilder: (context) => [
+                            const PopupMenuItem(value: 'edit', child: Text('編輯')),
+                            if (card.imgURL == null)
+                              const PopupMenuItem(value: 'generate_image', child: Text('AI 生成圖片')),
+                            const PopupMenuItem(value: 'delete', child: Text('刪除', style: TextStyle(color: Colors.red))),
+                          ],
                         ),
-                        leading: card.imageUrl != null
-                            ? ClipRRect(
-                                borderRadius: BorderRadius.circular(4),
-                                child: Image.network(
-                                  card.imageUrl!,
-                                  width: 40,
-                                  height: 40,
-                                  fit: BoxFit.cover,
-                                ),
-                              )
-                            : Container(
-                                width: 40,
-                                height: 40,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey[300],
-                                  borderRadius: BorderRadius.circular(4),
-                                ),
-                                child: const Icon(Icons.image, color: Colors.grey),
-                              ),
                       ),
                     );
                   },
@@ -357,227 +129,167 @@ class _FlashcardPageState extends State<FlashcardPage> with TickerProviderStateM
       ],
     );
   }
+  
+  // (Other build methods like _buildGameView, etc., remain unchanged)
 
-  Widget _buildGameMode() {
-    if (!_isGameMode) {
-      return Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.games, size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text(
-              'Game Mode',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              'Select tags and start practicing!',
-              style: TextStyle(fontSize: 16, color: Colors.grey),
-            ),
-            const SizedBox(height: 24),
-            
-            // Tag Selection
-            const Text(
-              'Select Tags:',
-              style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 8),
-            Wrap(
-              spacing: 8.0,
-              children: _availableTags.map((tag) {
-                final isSelected = _selectedTags.contains(tag);
-                return FilterChip(
-                  label: Text(tag),
-                  selected: isSelected,
-                  onSelected: (selected) {
-                    setState(() {
-                      if (selected) {
-                        _selectedTags.add(tag);
-                      } else {
-                        _selectedTags.remove(tag);
-                      }
-                    });
+  // --- Add/Edit Card Dialog ---
+  void _showAddOrEditCardDialog(BuildContext context, CardsPageViewModel viewModel, {StudyCard? existingCard}) {
+    final isEditing = existingCard != null;
+    final textController = TextEditingController(text: isEditing ? existingCard.text : '');
+    final tagsController = TextEditingController(text: isEditing ? existingCard.tags.join(', ') : '');
+    // The selected session ID. For editing, it's the card's sessionID. For new, it defaults to the first session.
+    String? selectedSessionId = isEditing ? existingCard.sessionID : (viewModel.allSessions.isNotEmpty ? viewModel.allSessions.first.id : null);
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder( // Use StatefulBuilder to manage the dialog's state
+          builder: (context, setDialogState) {
+            return AlertDialog(
+              title: Text(isEditing ? '編輯卡片' : '新增卡片'),
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    // Session Dropdown (only for new cards)
+                    if (!isEditing)
+                      DropdownButtonFormField<String>(
+                        value: selectedSessionId,
+                        items: viewModel.allSessions.map((Session session) {
+                          return DropdownMenuItem<String>(
+                            value: session.id,
+                            child: Text(session.sessionName),
+                          );
+                        }).toList(),
+                        onChanged: (String? newValue) {
+                          setDialogState(() {
+                            selectedSessionId = newValue;
+                          });
+                        },
+                        decoration: const InputDecoration(labelText: '選擇 Session'),
+                        validator: (value) => value == null ? '請選擇一個 Session' : null,
+                      ),
+                    TextField(
+                      controller: textController,
+                      decoration: const InputDecoration(labelText: '文字'),
+                      autofocus: true,
+                    ),
+                    TextField(
+                      controller: tagsController,
+                      decoration: const InputDecoration(labelText: '標籤 (以逗號分隔)'),
+                    ),
+                  ],
+                ),
+              ),
+              actions: [
+                TextButton(onPressed: () => Navigator.of(context).pop(), child: const Text('取消')),
+                ElevatedButton(
+                  onPressed: () {
+                    final text = textController.text.trim();
+                    if (text.isEmpty) return;
+                    if (selectedSessionId == null) return; // Should not happen if validated
+
+                    final tags = tagsController.text.split(',').map((t) => t.trim()).where((t) => t.isNotEmpty).toList();
+
+                    if (isEditing) {
+                      final updatedCard = existingCard.copyWith(text: text, tags: tags);
+                      viewModel.updateCard(updatedCard);
+                    } else {
+                      viewModel.createCard(sessionId: selectedSessionId!, text: text, tags: tags);
+                    }
+                    Navigator.of(context).pop();
                   },
-                );
-              }).toList(),
-            ),
-            const SizedBox(height: 24),
-            
-            ElevatedButton(
-              onPressed: _startGame,
-              style: ElevatedButton.styleFrom(
-                minimumSize: const Size(200, 48),
-              ),
-              child: const Text('Start Game'),
-            ),
-          ],
-        ),
-      );
-    }
-
-    // Game is active
-    final gameCards = _filteredCards;
-    if (_currentCardIndex >= gameCards.length) {
-      return const Center(child: Text('No more cards'));
-    }
-
-    final currentCard = gameCards[_currentCardIndex];
-
-    return Column(
-      children: [
-        // Progress bar
-        Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            children: [
-              Text('Score: $_gameScore/$_totalGameCards'),
-              const SizedBox(height: 8),
-              LinearProgressIndicator(
-                value: (_currentCardIndex + 1) / _totalGameCards,
-              ),
-            ],
-          ),
-        ),
-        
-        // Card
-        Expanded(
-          child: Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: GestureDetector(
-              onTap: _flipCard,
-              child: Card(
-                elevation: 8,
-                child: Container(
-                  width: double.infinity,
-                  padding: const EdgeInsets.all(24),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(12),
-                    gradient: LinearGradient(
-                      begin: Alignment.topLeft,
-                      end: Alignment.bottomRight,
-                      colors: _isCardFlipped 
-                          ? [Colors.green.shade100, Colors.green.shade50]
-                          : [Colors.blue.shade100, Colors.blue.shade50],
-                    ),
-                  ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (currentCard.imageUrl != null && !_isCardFlipped)
-                        Image.network(
-                          currentCard.imageUrl!,
-                          height: 150,
-                          fit: BoxFit.contain,
-                        ),
-                      const SizedBox(height: 24),
-                      Text(
-                        _isCardFlipped ? currentCard.back : currentCard.front,
-                        style: const TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        _isCardFlipped ? 'Tap to flip back' : 'Tap to reveal answer',
-                        style: const TextStyle(
-                          fontSize: 14,
-                          color: Colors.grey,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-          ),
-        ),
-        
-        // Action buttons (only show when card is flipped)
-        if (_isCardFlipped)
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: Row(
-              children: [
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _nextCard(false),
-                    icon: const Icon(Icons.thumb_down),
-                    label: const Text('Incorrect'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.red,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 16),
-                Expanded(
-                  child: ElevatedButton.icon(
-                    onPressed: () => _nextCard(true),
-                    icon: const Icon(Icons.thumb_up),
-                    label: const Text('Correct'),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green,
-                      foregroundColor: Colors.white,
-                      padding: const EdgeInsets.symmetric(vertical: 12),
-                    ),
-                  ),
+                  child: const Text('儲存'),
                 ),
               ],
-            ),
-          ),
-          
-        // Voice recognition button (placeholder)
-        if (_isCardFlipped)
-          Padding(
-            padding: const EdgeInsets.only(bottom: 16.0),
-            child: FloatingActionButton(
-              onPressed: () {
-                // TODO: Implement voice recognition
-                _showSnackBar('Voice recognition not implemented yet');
-              },
-              child: const Icon(Icons.mic),
-            ),
-          ),
-      ],
+            );
+          }
+        );
+      },
     );
   }
+  
+  // Duplicated code from previous response for completeness
+  Widget _buildCardImage(StudyCard card) {
+    if (card.imgURL != null && card.imgURL!.isNotEmpty) {
+      return ClipRRect(borderRadius: BorderRadius.circular(4), child: Image.network(card.imgURL!, width: 50, height: 50, fit: BoxFit.cover, errorBuilder: (c, e, s) => const Icon(Icons.broken_image, size: 40)));
+    }
+    return Container(width: 50, height: 50, color: Colors.grey[200], child: const Icon(Icons.image_not_supported, color: Colors.grey));
+  }
 
+  Widget _buildGameView(BuildContext context, CardsPageViewModel viewModel) {
+    switch (viewModel.gameState) {
+      case GameState.setup: return _buildGameSetupView(context, viewModel);
+      case GameState.active: return _buildGameActiveView(context, viewModel);
+      case GameState.finished: return _buildGameFinishedView(context, viewModel);
+    }
+  }
+
+  Widget _buildGameSetupView(BuildContext context, CardsPageViewModel viewModel) {
+    return Padding(padding: const EdgeInsets.all(16.0), child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      const Text('選擇要練習的標籤', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+      const Text('（若不選擇則練習所有卡片）'),
+      const SizedBox(height: 16),
+      Wrap(spacing: 8.0, runSpacing: 4.0, children: viewModel.availableTags.map((tag) {
+        final isSelected = viewModel.selectedTagsForGame.contains(tag);
+        return FilterChip(label: Text(tag), selected: isSelected, onSelected: (s) => viewModel.toggleTagForGame(tag));
+      }).toList()),
+      const SizedBox(height: 24),
+      ElevatedButton(onPressed: viewModel.allCards.isEmpty ? null : () => viewModel.startGame(), style: ElevatedButton.styleFrom(minimumSize: const Size(200, 48)), child: const Text('開始遊戲')),
+    ]));
+  }
+
+  Widget _buildGameActiveView(BuildContext context, CardsPageViewModel viewModel) {
+    final card = viewModel.currentGameCard;
+    if (card == null) return const Center(child: Text('遊戲錯誤'));
+    return GameCard(card: card, viewModel: viewModel);
+  }
+
+  Widget _buildGameFinishedView(BuildContext context, CardsPageViewModel viewModel) {
+    return Center(child: Column(mainAxisAlignment: MainAxisAlignment.center, children: [
+      const Text('遊戲結束！', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold)),
+      const SizedBox(height: 16),
+      Text('您的分數: ${viewModel.gameScore} / ${viewModel.totalGameCards}', style: const TextStyle(fontSize: 20)),
+      const SizedBox(height: 24),
+      ElevatedButton(onPressed: () => viewModel.endGame(), child: const Text('返回')),
+    ]));
+  }
+}
+
+class GameCard extends StatefulWidget {
+  final StudyCard card;
+  final CardsPageViewModel viewModel;
+  const GameCard({super.key, required this.card, required this.viewModel});
+  @override
+  State<GameCard> createState() => _GameCardState();
+}
+
+class _GameCardState extends State<GameCard> {
+  bool isFlipped = false;
+  @override
+  void didUpdateWidget(covariant GameCard oldWidget) {
+    super.didUpdateWidget(oldWidget);
+    if (widget.card.id != oldWidget.card.id) setState(() => isFlipped = false);
+  }
+  void _flipCard() => setState(() => isFlipped = !isFlipped);
+  void _onAnswer(bool correct) {
+    if (!isFlipped) return;
+    widget.viewModel.recordAnswer(widget.card, correct);
+  }
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Flashcards'),
-        automaticallyImplyLeading: false,
-        bottom: _isGameMode ? null : TabBar(
-          controller: _tabController,
-          onTap: (index) {
-            setState(() {
-              _selectedTabIndex = index;
-            });
-          },
-          tabs: const [
-            Tab(text: 'Manage Cards', icon: Icon(Icons.view_list)),
-            Tab(text: 'Game Mode', icon: Icon(Icons.games)),
-          ],
-        ),
-        actions: _isGameMode ? [
-          IconButton(
-            onPressed: _endGame,
-            icon: const Icon(Icons.close),
-            tooltip: 'End Game',
-          ),
-        ] : null,
-      ),
-      body: _isGameMode 
-          ? _buildGameMode()
-          : _selectedTabIndex == 0 
-              ? _buildCardManagement()
-              : _buildGameMode(),
-    );
+    return Column(children: [
+      Padding(padding: const EdgeInsets.all(16.0), child: Text('分數: ${widget.viewModel.gameScore}', style: const TextStyle(fontSize: 18))),
+      Expanded(child: GestureDetector(onTap: _flipCard, child: Card(elevation: 8, margin: const EdgeInsets.all(24), child: Container(
+        width: double.infinity, alignment: Alignment.center, padding: const EdgeInsets.all(24),
+        child: Text(isFlipped ? '答案是...' : widget.card.text, style: const TextStyle(fontSize: 28, fontWeight: FontWeight.bold), textAlign: TextAlign.center),
+      )))),
+      if (isFlipped) Padding(padding: const EdgeInsets.all(16.0), child: Row(children: [
+        Expanded(child: ElevatedButton.icon(onPressed: () => _onAnswer(false), icon: const Icon(Icons.close), label: const Text('不記得'), style: ElevatedButton.styleFrom(backgroundColor: Colors.red, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16)))),
+        const SizedBox(width: 16),
+        Expanded(child: ElevatedButton.icon(onPressed: () => _onAnswer(true), icon: const Icon(Icons.check), label: const Text('記得'), style: ElevatedButton.styleFrom(backgroundColor: Colors.green, foregroundColor: Colors.white, padding: const EdgeInsets.symmetric(vertical: 16)))),
+      ])),
+      if (!isFlipped) const Padding(padding: EdgeInsets.all(16.0), child: SizedBox(height: 60)),
+    ]);
   }
 }

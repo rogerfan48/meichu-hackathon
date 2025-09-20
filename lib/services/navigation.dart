@@ -1,59 +1,61 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:foodie/pages/loading_page.dart';
 import 'package:go_router/go_router.dart';
-import 'package:foodie/pages/main_page.dart';
-import 'package:foodie/pages/upload_page.dart';
-import 'package:foodie/pages/flashcard_page.dart';
-import 'package:foodie/pages/setting_page.dart';
-import 'package:foodie/pages/history_page.dart';
+import '../pages/loading_page.dart';
+import '../pages/main_page.dart';
+import '../pages/upload_page.dart';
+import '../pages/flashcard_page.dart';
+import '../pages/setting_page.dart';
+import '../pages/history_page.dart';
+import '../pages/session_detail_page.dart';
 
 final routerConfig = GoRouter(
   initialLocation: '/loading',
   routes: [
     GoRoute(
       path: '/loading',
-      pageBuilder: (context, state) => NoTransitionPage(child: const LoadingPage()),
+      // Loading Page 也不需要動畫
+      pageBuilder: (context, state) => const NoTransitionPage(
+        child: LoadingPage(),
+      ),
     ),
     ShellRoute(
-      builder: (context, state, child) => MainPage(child: child), // 傳入 tab page
+      builder: (context, state, child) => MainPage(child: child),
       routes: [
         GoRoute(
           path: '/upload',
-          pageBuilder: (context, state) => const NoTransitionPage(child: UploadPage()),
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: UploadPage(),
+          ),
         ),
         GoRoute(
           path: '/flashcard',
-          pageBuilder: (context, state) => const NoTransitionPage(child: FlashcardPage()),
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: FlashcardPage(),
+          ),
         ),
         GoRoute(
           path: '/history',
-          pageBuilder: (context, state) => const NoTransitionPage(child: HistoryPage()),
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: HistoryPage(),
+          ),
+          routes: [
+            GoRoute(
+              path: ':sessionId',
+              // 詳細頁面可以保留預設動畫，感覺更自然
+              builder: (context, state) {
+                final sessionId = state.pathParameters['sessionId']!;
+                return SessionDetailPage(sessionId: sessionId);
+              },
+            ),
+          ],
         ),
         GoRoute(
           path: '/setting',
-          pageBuilder: (context, state) => NoTransitionPage(child: SettingPage()),
+          pageBuilder: (context, state) => const NoTransitionPage(
+            child: SettingPage(),
+          ),
         ),
       ],
     ),
   ],
-  redirect: (context, state) {
-    final currentPath = state.uri.path;
-    if (currentPath == '/') return '/upload';
-    return null;
-  },
-  errorBuilder:
-      (context, state) => Scaffold(body: Center(child: Text('Page not found: ${state.uri.path}'))),
 );
-
-class NavigationService {
-  // late final GoRouter _router;
-
-  // NavigationService() {
-  //   _router = routerConfig;
-  // }
-
-  // String _currentPath(BuildContext context) {
-  //   return GoRouterState.of(context).uri.path;
-  // }
-}

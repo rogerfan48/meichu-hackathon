@@ -1,16 +1,17 @@
-import { onCallGenkit } from "firebase-functions/https";
+// import { onCallGenkit } from "firebase-functions/https";
 
-import { summarizeDishReviewFlow } from "./flow/summarizeDishReview";
-export const summarizeDishReview = onCallGenkit(summarizeDishReviewFlow);
+import { genSessionSummaryFlow } from "./flow/genSessionSummary";
+export const genSessionSummary = genSessionSummaryFlow;
 
-import { summarizeRestaurantReviewFlow } from "./flow/summarizeRestaurantReview";
-export const summarizeRestaurantReview = onCallGenkit(summarizeRestaurantReviewFlow);
+import { genCardsFlow } from "./flow/genCardsFlow";
+export const genCards = genCardsFlow;
 
-import { recommendRestaurantFlow } from "./flow/recommendRestaurant";
-export const recommendRestaurant = onCallGenkit(recommendRestaurantFlow);
+import { onSessionDeleted } from "./onSessionDeleted";
+export { onSessionDeleted };
 
-import { identifyReceiptDishFlow } from "./flow/identifyReceiptDish";
-export const identifyReceiptDish = onCallGenkit(identifyReceiptDishFlow);
+import { onCardDeleted } from "./onCardDeleted";
+export { onCardDeleted };
 
-import { onReviewChanged } from "./onReviewChanged";
-export { onReviewChanged };
+// NEW: process existing session (summaries + images)
+import { processExistingSessionFlow } from "./flow/processExistingSession";
+export { processExistingSessionFlow };

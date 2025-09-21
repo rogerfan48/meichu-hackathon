@@ -145,6 +145,7 @@ class UploadPageViewModel extends ChangeNotifier {
       _errorMessage = '上傳失敗: $e';
       _setState(UploadPageState.error);
       await sessionRepository.updateStatus(userId, sessionId, 'failed');
+      print(_errorMessage);
     }
   }
 

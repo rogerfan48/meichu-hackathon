@@ -2,7 +2,7 @@ import 'package:cloud_functions/cloud_functions.dart';
 
 Future<void> processExistingSession(String sessionID, String userID) async {
   try {
-    final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('processExistingSession');
+    final HttpsCallable callable = FirebaseFunctions.instance.httpsCallable('processExistingSessionFlow_s');
     
     await callable.call({
       "sessionID": sessionID,

@@ -15,15 +15,27 @@ class SessionDetailViewModel extends ChangeNotifier {
 
   StreamSubscription? _sessionSub;
   StreamSubscription? _cardsSub;
+  StreamSubscription? _fileResourcesSub;
+  StreamSubscription? _imgExplanationsSub;
 
   SessionDetailPageState _state = SessionDetailPageState.loading;
   SessionDetailPageState get state => _state;
 
   Session? _session;
-  Session? get session => _session;
+  Session? get session {
+    if (_session == null) return null;
+    // 返回包含載入的 fileResources 和 imgExplanations 的 session
+    return _session!.copyWith(
+      fileResources: _fileResources,
+      imgExplanations: _imgExplanations,
+    );
+  }
 
   List<StudyCard> _cards = [];
   List<StudyCard> get cards => _cards;
+
+  Map<String, FileResource> _fileResources = {};
+  Map<String, ImgExplanation> _imgExplanations = {};
 
   String? _errorMessage;
   String? get errorMessage => _errorMessage;
@@ -44,20 +56,33 @@ class SessionDetailViewModel extends ChangeNotifier {
     _sessionSub?.cancel();
     _sessionSub = sessionRepository.watchSession(userId, sessionId).listen((sessionData) {
       _session = sessionData;
-      if (_state == SessionDetailPageState.loading && _cards.isNotEmpty) {
-        _state = SessionDetailPageState.idle;
-      }
-      notifyListeners();
+      _checkIfDataLoaded();
     }, onError: _handleError);
 
     _cardsSub?.cancel();
     _cardsSub = cardRepository.watchCardsForSession(userId, sessionId).listen((cardData) {
       _cards = cardData;
-      if (_state == SessionDetailPageState.loading && _session != null) {
-        _state = SessionDetailPageState.idle;
-      }
-      notifyListeners();
+      _checkIfDataLoaded();
     }, onError: _handleError);
+
+    _fileResourcesSub?.cancel();
+    _fileResourcesSub = sessionRepository.watchFileResources(userId, sessionId).listen((fileResources) {
+      _fileResources = {for (var fr in fileResources) fr.id: fr};
+      _checkIfDataLoaded();
+    }, onError: _handleError);
+
+    _imgExplanationsSub?.cancel();
+    _imgExplanationsSub = sessionRepository.watchImgExplanations(userId, sessionId).listen((imgExplanations) {
+      _imgExplanations = {for (var img in imgExplanations) img.id: img};
+      _checkIfDataLoaded();
+    }, onError: _handleError);
+  }
+
+  void _checkIfDataLoaded() {
+    if (_state == SessionDetailPageState.loading && _session != null) {
+      _state = SessionDetailPageState.idle;
+    }
+    notifyListeners();
   }
 
   void _handleError(e) {
@@ -79,6 +104,8 @@ class SessionDetailViewModel extends ChangeNotifier {
   void dispose() {
     _sessionSub?.cancel();
     _cardsSub?.cancel();
+    _fileResourcesSub?.cancel();
+    _imgExplanationsSub?.cancel();
     super.dispose();
   }
 }

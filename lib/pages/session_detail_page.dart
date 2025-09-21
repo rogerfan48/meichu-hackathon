@@ -69,9 +69,35 @@ class SessionDetailPage extends StatelessWidget {
             const SizedBox(height: 8),
             ...session.fileResources.values.map((file) => Card(
               child: ListTile(
-                leading: const Icon(Icons.description),
-                title: Text(file.id),
-                subtitle: Text(file.fileURL, overflow: TextOverflow.ellipsis),
+                leading: _isImageFile(file.fileURL) 
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: FirebaseImage(
+                        gsUri: file.fileURL,
+                        width: 56,
+                        height: 56,
+                        fit: BoxFit.cover,
+                        errorWidget: Container(
+                          width: 56,
+                          height: 56,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: const Icon(Icons.broken_image, color: Colors.grey, size: 24),
+                        ),
+                      ),
+                    )
+                  : const Icon(Icons.description),
+                title: Text(_getFileNameFromUrl(file.fileURL)),
+                subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text('ID: ${file.id}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
+                    if (file.fileSummary != null && file.fileSummary!.isNotEmpty)
+                      Text(file.fileSummary!, maxLines: 2, overflow: TextOverflow.ellipsis),
+                  ],
+                ),
               ),
             )),
             
@@ -186,13 +212,36 @@ class SessionDetailPage extends StatelessWidget {
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       children: [
         Text(title, style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-        if (onAddPressed != null)
-          TextButton.icon(
-            onPressed: onAddPressed,
-            icon: const Icon(Icons.add),
-            label: const Text("Add"),
-          )
+        // if (onAddPressed != null)
+        //   TextButton.icon(
+        //     onPressed: onAddPressed,
+        //     icon: const Icon(Icons.add),
+        //     label: const Text("Add"),
+        //   )
       ],
     );
+  }
+
+  String _getFileNameFromUrl(String url) {
+    try {
+      // 從 URL 中提取文件名
+      final uri = Uri.parse(url);
+      String fileName = uri.pathSegments.isNotEmpty ? uri.pathSegments.last : url;
+      // 如果文件名包含 %2F 等編碼字符，進行解碼
+      fileName = Uri.decodeComponent(fileName);
+      // 如果仍然是空的或看起來像 ID，則使用 "檔案" 作為默認名稱
+      if (fileName.isEmpty || fileName.length > 50) {
+        return '檔案';
+      }
+      return fileName;
+    } catch (e) {
+      return '檔案';
+    }
+  }
+
+  bool _isImageFile(String url) {
+    final imageExtensions = ['.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp'];
+    final lowerUrl = url.toLowerCase();
+    return imageExtensions.any((ext) => lowerUrl.contains(ext));
   }
 }

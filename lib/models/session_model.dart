@@ -48,9 +48,8 @@ class Session {
       'id': id,
       'sessionName': sessionName,
       'createdAt': createdAt ?? FieldValue.serverTimestamp(),
-      'fileResources': fileResources.map((k, v) => MapEntry(k, v.toJson())),
+      // fileResources 和 imgExplanations 現在是 subcollections，不存儲在主文檔中
       'summary': summary,
-      'imgExplanations': imgExplanations.map((k, v) => MapEntry(k, v.toJson())),
       'cardIDs': cardIDs,
       'status': status,
     };
@@ -61,11 +60,11 @@ class Session {
       id: id,
       sessionName: json['sessionName'] as String? ?? '',
       createdAt: json['createdAt'] as Timestamp?,
-      fileResources: (json['fileResources'] as Map<String, dynamic>? ?? {})
-          .map((k, v) => MapEntry(k, FileResource.fromFirestore(Map<String, dynamic>.from(v), k))),
+      // fileResources 和 imgExplanations 現在是 subcollections，將使用空 Map
+      // 實際資料需要通過 SessionRepository 的 watchFileResources 和 watchImgExplanations 獲取
+      fileResources: const {},
       summary: json['summary'] as String?,
-      imgExplanations: (json['imgExplanations'] as Map<String, dynamic>? ?? {})
-          .map((k, v) => MapEntry(k, ImgExplanation.fromFirestore(Map<String, dynamic>.from(v), k))),
+      imgExplanations: const {},
       cardIDs: (json['cardIDs'] as List<dynamic>? ?? []).cast<String>(),
       status: json['status'] as String? ?? 'idle',
     );

@@ -9,9 +9,17 @@ class SessionRepository {
   CollectionReference<Map<String, dynamic>> _sessionsCollection(String uid) =>
       _firestore.collection(FirestorePaths.sessionsCollection(uid));
 
+  CollectionReference<Map<String, dynamic>> _fileResourcesCollection(String uid, String sessionId) =>
+      _firestore.collection(FirestorePaths.fileResourcesCollection(uid, sessionId));
+
+  CollectionReference<Map<String, dynamic>> _imgExplanationsCollection(String uid, String sessionId) =>
+      _firestore.collection(FirestorePaths.imgExplanationsCollection(uid, sessionId));
+
   Stream<Session?> watchSession(String uid, String sessionId) {
     return _sessionsCollection(uid).doc(sessionId).snapshots().map((snap) {
       if (!snap.exists) return null;
+      // 注意：fileResources 和 imgExplanations 現在是空的，因為它們是 subcollections
+      // 如果需要這些資料，應該使用 watchFileResources 和 watchImgExplanations
       return Session.fromFirestore(snap.data()!, snap.id);
     });
   }
@@ -43,9 +51,7 @@ class SessionRepository {
   }
 
   Future<void> addFileResource(String uid, String sessionId, FileResource fr) async {
-    await _sessionsCollection(uid).doc(sessionId).update({
-      'fileResources.${fr.id}': fr.toJson(),
-    });
+    await _fileResourcesCollection(uid, sessionId).doc(fr.id).set(fr.toJson());
   }
 
   Future<void> addCardLink(String uid, String sessionId, String cardId) async {
@@ -60,5 +66,28 @@ class SessionRepository {
 
   Future<void> updateSummary(String uid, String sessionId, String summary) async {
     await _sessionsCollection(uid).doc(sessionId).update({'summary': summary});
+  }
+
+  // 獲取 fileResources subcollection
+  Stream<List<FileResource>> watchFileResources(String uid, String sessionId) {
+    return _fileResourcesCollection(uid, sessionId).snapshots().map((snapshot) {
+      return snapshot.docs
+          .map((doc) => FileResource.fromFirestore(doc.data(), doc.id))
+          .toList();
+    });
+  }
+
+  // 獲取 imgExplanations subcollection  
+  Stream<List<ImgExplanation>> watchImgExplanations(String uid, String sessionId) {
+    return _imgExplanationsCollection(uid, sessionId).snapshots().map((snapshot) {
+      return snapshot.docs
+          .map((doc) => ImgExplanation.fromFirestore(doc.data(), doc.id))
+          .toList();
+    });
+  }
+
+  // 添加 imgExplanation 到 subcollection
+  Future<void> addImgExplanation(String uid, String sessionId, ImgExplanation imgExplanation) async {
+    await _imgExplanationsCollection(uid, sessionId).doc(imgExplanation.id).set(imgExplanation.toJson());
   }
 }

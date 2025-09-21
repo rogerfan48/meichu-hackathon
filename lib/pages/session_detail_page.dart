@@ -90,14 +90,6 @@ class SessionDetailPage extends StatelessWidget {
                     )
                   : const Icon(Icons.description),
                 title: Text(_getFileNameFromUrl(file.fileURL)),
-                subtitle: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Text('ID: ${file.id}', style: TextStyle(fontSize: 12, color: Colors.grey[600])),
-                    if (file.fileSummary != null && file.fileSummary!.isNotEmpty)
-                      Text(file.fileSummary!, maxLines: 2, overflow: TextOverflow.ellipsis),
-                  ],
-                ),
               ),
             )),
             

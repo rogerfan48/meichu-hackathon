@@ -9,6 +9,8 @@ class Session {
   final Map<String, ImgExplanation> imgExplanations;
   final List<String> cardIDs;
   final String status;
+  final int? fileResourcesCount;
+  final int? imgExplanationsCount;
 
   const Session({
     required this.id,
@@ -19,6 +21,8 @@ class Session {
     this.imgExplanations = const {},
     this.cardIDs = const <String>[],
     this.status = 'idle',
+    this.fileResourcesCount,
+    this.imgExplanationsCount,
   });
 
   Session copyWith({
@@ -30,6 +34,8 @@ class Session {
     Map<String, ImgExplanation>? imgExplanations,
     List<String>? cardIDs,
     String? status,
+    int? fileResourcesCount,
+    int? imgExplanationsCount,
   }) {
     return Session(
       id: id ?? this.id,
@@ -40,6 +46,8 @@ class Session {
       imgExplanations: imgExplanations ?? this.imgExplanations,
       cardIDs: cardIDs ?? this.cardIDs,
       status: status ?? this.status,
+      fileResourcesCount: fileResourcesCount ?? this.fileResourcesCount,
+      imgExplanationsCount: imgExplanationsCount ?? this.imgExplanationsCount,
     );
   }
 
@@ -52,6 +60,8 @@ class Session {
       'summary': summary,
       'cardIDs': cardIDs,
       'status': status,
+      'fileResourcesCount': fileResourcesCount,
+      'imgExplanationsCount': imgExplanationsCount,
     };
   }
 
@@ -67,6 +77,8 @@ class Session {
       imgExplanations: const {},
       cardIDs: (json['cardIDs'] as List<dynamic>? ?? []).cast<String>(),
       status: json['status'] as String? ?? 'idle',
+      fileResourcesCount: json['fileResourcesCount'] as int?,
+      imgExplanationsCount: json['imgExplanationsCount'] as int?,
     );
   }
 }

@@ -52,6 +52,10 @@ class SessionRepository {
 
   Future<void> addFileResource(String uid, String sessionId, FileResource fr) async {
     await _fileResourcesCollection(uid, sessionId).doc(fr.id).set(fr.toJson());
+    // 增加文件計數
+    await _sessionsCollection(uid).doc(sessionId).update({
+      'fileResourcesCount': FieldValue.increment(1),
+    });
   }
 
   Future<void> addCardLink(String uid, String sessionId, String cardId) async {
@@ -89,5 +93,20 @@ class SessionRepository {
   // 添加 imgExplanation 到 subcollection
   Future<void> addImgExplanation(String uid, String sessionId, ImgExplanation imgExplanation) async {
     await _imgExplanationsCollection(uid, sessionId).doc(imgExplanation.id).set(imgExplanation.toJson());
+    // 增加圖片解釋計數
+    await _sessionsCollection(uid).doc(sessionId).update({
+      'imgExplanationsCount': FieldValue.increment(1),
+    });
+  }
+
+  // 初始化現有 session 的計數器（用於遷移）
+  Future<void> initializeSessionCounts(String uid, String sessionId) async {
+    final fileResourcesSnapshot = await _fileResourcesCollection(uid, sessionId).get();
+    final imgExplanationsSnapshot = await _imgExplanationsCollection(uid, sessionId).get();
+    
+    await _sessionsCollection(uid).doc(sessionId).update({
+      'fileResourcesCount': fileResourcesSnapshot.docs.length,
+      'imgExplanationsCount': imgExplanationsSnapshot.docs.length,
+    });
   }
 }

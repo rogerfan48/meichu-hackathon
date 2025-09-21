@@ -100,7 +100,7 @@ class HistoryPage extends StatelessWidget {
             children: [
               _buildInfoRow(Icons.calendar_today_outlined, createdAtString),
               const SizedBox(height: 6),
-              _buildInfoRow(Icons.folder_open_outlined, '${session.fileResources.length} 個檔案, ${session.cardIDs.length} 張卡片'),
+              _buildInfoRow(Icons.folder_open_outlined, '${session.fileResourcesCount ?? session.fileResources.length} 個檔案, ${session.cardIDs.length} 張卡片'),
               if (session.summary != null && session.summary!.isNotEmpty) ...[
                 const SizedBox(height: 6),
                 _buildInfoRow(Icons.article_outlined, session.summary!, maxLines: 2),
